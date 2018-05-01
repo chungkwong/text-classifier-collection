@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import com.github.chungkwong.classifier.FrequencyClassifierFactory.FrequencyProfile;
 import com.github.chungkwong.classifier.util.*;
 import java.util.*;
 import java.util.stream.*;
@@ -29,11 +30,11 @@ public class TfIdfClassifierFactory<T> implements TrainableClassifierFactory<Cla
 	public static final TfIdfFormula FREQUENCY=((freq,docFreq,docCount)->{
 		return freq;
 	});
-	private final SimpleClassifierFactory<Classifier<Stream<T>>,Stream<T>,FrequencyProfile> base;
+	private final FrequencyClassifierFactory<Classifier<Stream<T>>,T> base;
 	private TfIdfFormula tfIdfFormula;
 	public TfIdfClassifierFactory(){
 		tfIdfFormula=STANDARD;
-		base=new SimpleClassifierFactory<>(()->new FrequencyProfile<>(),(data,profile)->profile.update(data),(profiles)->new TfIdfClassifier<>(profiles,getTfIdfFormula()));
+		base=new FrequencyClassifierFactory<>((profiles)->new TfIdfClassifier<>(getImmutableProfiles(),getTotalDocumentFrequencies(),getSampleCount(),getTfIdfFormula()));
 	}
 	public TfIdfClassifierFactory<T> setTfIdfFormula(TfIdfFormula tfIdfFormula){
 		this.tfIdfFormula=tfIdfFormula;
@@ -50,81 +51,63 @@ public class TfIdfClassifierFactory<T> implements TrainableClassifierFactory<Cla
 	public Classifier<Stream<T>> getClassifier(){
 		return base.getClassifier();
 	}
+	public Map<Category,FrequencyProfile<T>> getProfile(){
+		return base.getProfiles();
+	}
+	public Map<Category,ImmutableFrequencies<T>> getImmutableProfiles(){
+		return base.getImmutableProfiles();
+	}
+	public ImmutableFrequencies<T> getTotalDocumentFrequencies(){
+		return base.getTotalDocumentFrequencies();
+	}
+	public int getSampleCount(){
+		return base.getSampleCount();
+	}
 	@FunctionalInterface
 	public interface TfIdfFormula{
 		double calculate(int freq,int docFreq,int docCount);
 	}
-}
-class FrequencyProfile<T>{
-	private int documentCount=0;
-	private final Frequencies<T> tokenFrequency=new Frequencies<>();
-	private final Frequencies<T> documentFrequency=new Frequencies<>();
-	public FrequencyProfile(){
-	}
-	public void update(Stream<T> object){
-		Set<T> found=new TreeSet<>();
-		object.forEach((token)->{
-			tokenFrequency.advanceFrequency(token);
-			if(!found.contains(token)){
-				documentFrequency.advanceFrequency(token);
-				found.add(token);
+	private static class TfIdfClassifier<T> implements Classifier<Stream<T>>{
+		private Map<Category,ImmutableFrequencies<T>> profiles=new HashMap<>();
+		private ImmutableFrequencies<T> documentFrequencies;
+		private final int documentCount;
+		private final TfIdfClassifierFactory.TfIdfFormula tfIdfFormula;
+		public TfIdfClassifier(Map<Category,ImmutableFrequencies<T>> profiles,
+				ImmutableFrequencies<T> documentFrequencies,int documentCount,
+				TfIdfClassifierFactory.TfIdfFormula tfIdfFormula){
+			this.profiles=profiles;
+			this.documentFrequencies=documentFrequencies;
+			this.documentCount=documentCount;
+			this.tfIdfFormula=tfIdfFormula;
+		}
+		@Override
+		public Category classify(Stream<T> object){
+			ImmutableFrequencies<T> document=new ImmutableFrequencies<>(object);
+			Optional<ScoredCategory> category=profiles.entrySet().stream().map((e)->new ScoredCategory(cosSquare(document,e.getValue()),e.getKey())).
+					max((a,b)->Double.compare(a.getScore(),b.getScore()));
+			return category.map((e)->e.getCategory()).orElse(null);
+		}
+		private double cosSquare(ImmutableFrequencies<T> document,ImmutableFrequencies<T> category){
+			ImmutableFrequencies<T> shorter, longer;
+			if(document.getTokenCount()>category.getTokenCount()){
+				shorter=category;
+				longer=document;
+			}else{
+				shorter=document;
+				longer=category;
 			}
-		});
-		++documentCount;
-	}
-	public Frequencies<T> getDocumentFrequency(){
-		return documentFrequency;
-	}
-	public Frequencies<T> getTokenFrequency(){
-		return tokenFrequency;
-	}
-	public int getDocumentCount(){
-		return documentCount;
-	}
-}
-class TfIdfClassifier<T> implements Classifier<Stream<T>>{
-	private Map<Category,ImmutableFrequencies<T>> profiles=new HashMap<>();
-	private ImmutableFrequencies<T> documentFrequencies;
-	private int documentCount;
-	private final TfIdfClassifierFactory.TfIdfFormula tfIdfFormula;
-	public TfIdfClassifier(Map<Category,FrequencyProfile> profiles,TfIdfClassifierFactory.TfIdfFormula tfIdfFormula){
-		Frequencies<T> documentFrequenciesRaw=new Frequencies<>();
-		profiles.forEach((k,v)->{
-			this.profiles.put(k,new ImmutableFrequencies<>(v.getTokenFrequency()));
-			documentFrequenciesRaw.merge(v.getDocumentFrequency());
-			documentCount+=v.getDocumentCount();
-		});
-		documentFrequencies=new ImmutableFrequencies<>(documentFrequenciesRaw);
-		System.out.println("TOKEN:"+documentFrequencies.getTokenCount());
-		this.tfIdfFormula=tfIdfFormula;
-	}
-	@Override
-	public Category classify(Stream<T> object){
-		ImmutableFrequencies<T> document=new ImmutableFrequencies<>(object);
-		Optional<ScoredCategory> category=profiles.entrySet().stream().map((e)->new ScoredCategory(cosSquare(document,e.getValue()),e.getKey())).
-				max((a,b)->Double.compare(a.getScore(),b.getScore()));
-		return category.map((e)->e.getCategory()).orElse(null);
-	}
-	private double cosSquare(ImmutableFrequencies<T> document,ImmutableFrequencies<T> category){
-		ImmutableFrequencies<T> shorter,longer;
-		if(document.getTokenCount()>category.getTokenCount()){
-			shorter=category;
-			longer=document;
-		}else{
-			shorter=document;
-			longer=category;
+			double product=0, shortModSq=0, longModSq=0;
+			Iterator<Map.Entry<T,Integer>> iterator=shorter.toMap().entrySet().iterator();
+			while(iterator.hasNext()){
+				Map.Entry<T,Integer> next=iterator.next();
+				T token=next.getKey();
+				double shortTfIdf=tfIdfFormula.calculate(next.getValue(),documentFrequencies.getFrequency(token),documentCount);
+				double longTfIdf=tfIdfFormula.calculate(longer.getFrequency(token),documentFrequencies.getFrequency(token),documentCount);
+				shortModSq+=shortTfIdf*shortTfIdf;
+				longModSq+=longTfIdf*longTfIdf;
+				product+=shortModSq*longTfIdf;
+			}
+			return product*product/(shortModSq*longModSq);
 		}
-		double product=0,shortModSq=0,longModSq=0;
-		Iterator<Map.Entry<T,Integer>> iterator=shorter.toMap().entrySet().iterator();
-		while(iterator.hasNext()){
-			Map.Entry<T,Integer> next=iterator.next();
-			T token=next.getKey();
-			double shortTfIdf=tfIdfFormula.calculate(next.getValue(),documentFrequencies.getFrequency(token),documentCount);
-			double longTfIdf=tfIdfFormula.calculate(longer.getFrequency(token),documentFrequencies.getFrequency(token),documentCount);
-			shortModSq+=shortTfIdf*shortTfIdf;
-			longModSq+=longTfIdf*longTfIdf;
-			product+=shortModSq*longTfIdf;
-		}
-		return product*product/(shortModSq*longModSq);
 	}
 }

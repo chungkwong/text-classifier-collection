@@ -15,10 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+
 /**
  *
  * @author kwong
  */
-public interface Classifier<T>{
-	Category classify(T object);
+public class BayesianClassifierFactory{
+	
 }

@@ -24,7 +24,7 @@ import java.util.stream.*;
  *
  * @author kwong
  */
-public class TextPreprocessor{
+public class TextPreprocessors{
 	public static Function<String,Stream<String>> of(Function<String,Stream<String>> tokenizer,Function<Stream<String>,Stream<String>>... filters){
 		Function<String,Stream<String>> preprocessor=tokenizer;
 		for(Function<Stream<String>,Stream<String>> filter:filters){
@@ -36,7 +36,7 @@ public class TextPreprocessor{
 		class TokenIterator implements Iterator<String>{
 			private final String text;
 			private final BreakIterator iterator;
-			private int lower,upper;
+			private int lower, upper;
 			public TokenIterator(String text){
 				this.text=text;
 				iterator=(BreakIterator)breakIterator.clone();
@@ -73,10 +73,14 @@ public class TextPreprocessor{
 	public static Function<Stream<String>,Stream<String>> getDowncaser(){
 		return getDowncaser(Locale.getDefault());
 	}
+	public static Function<Stream<String>,Stream<String>> getPorterStemmer(){
+		PorterStemmer stemmer=new PorterStemmer();
+		return (tokens)->tokens.map((token)->stemmer.stem(token));
+	}
 	public static Function<Stream<String>,Stream<String>> getDowncaser(Locale locale){
 		return (tokens)->tokens.map((token)->token.toLowerCase(locale));
 	}
-	public static Function<Stream<String>,Stream<String>> getNgramGenerator(int... n){		
+	public static Function<Stream<String>,Stream<String>> getNgramGenerator(int... n){
 		class NgramIterator implements Iterator<String>{
 			private final Iterator<String> underlying;
 			private final int bufferSize;
@@ -95,9 +99,11 @@ public class TextPreprocessor{
 				bufferPointer=new CyclicCounter(bufferSize);
 				curr=new CyclicCounter(n.length);
 				offset=new int[bufferSize][bufferSize];
-				for(int i=0;i<bufferSize;i++)
-					for(int j=0;j<bufferSize;j++)
+				for(int i=0;i<bufferSize;i++){
+					for(int j=0;j<bufferSize;j++){
 						offset[i][j]=(i-j+bufferSize-1)%bufferSize;
+					}
+				}
 			}
 			@Override
 			public boolean hasNext(){
@@ -112,12 +118,14 @@ public class TextPreprocessor{
 				return ret;
 			}
 			private void fetchNext(){
-				if(str.length()>0)
+				if(str.length()>0){
 					return;
+				}
 				while(true){
 					if(curr.getCount()==0){
-						if(!underlying.hasNext())
+						if(!underlying.hasNext()){
 							return;
+						}
 						buffer[bufferPointer.getCount()]=underlying.next();
 						bufferPointer.advance();
 					}
@@ -125,8 +133,9 @@ public class TextPreprocessor{
 					int p=bufferPointer.getCount();
 					curr.advance();
 					if(buffer[offset[p][k]]!=null){
-						for(int j=k;j>=0;j--)
+						for(int j=k;j>=0;j--){
 							str.append(buffer[offset[p][j]]).append(SEPARATOR);
+						}
 						return;
 					}
 				}

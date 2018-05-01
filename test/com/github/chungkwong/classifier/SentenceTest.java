@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
-
 import com.github.chungkwong.classifier.util.*;
 import java.io.*;
 import java.nio.charset.*;
@@ -25,7 +24,6 @@ import java.util.*;
 import java.util.logging.*;
 import java.util.stream.*;
 import org.junit.*;
-
 /**
  *
  * @author kwong
@@ -35,7 +33,7 @@ public class SentenceTest{
 	public void testTfIdf() throws IOException{
 		TfIdfClassifierFactory<String> tfIdfClassifierFactory=new TfIdfClassifierFactory<>();
 		PreprocessClassifierFactory<Classifier<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
-				TextPreprocessor.of(TextPreprocessor.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)),TextPreprocessor.getWhitespaceFilter(),TextPreprocessor.getDowncaser()),
+				TextPreprocessors.of(TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)),TextPreprocessors.getWhitespaceFilter(),TextPreprocessors.getDowncaser()),
 				tfIdfClassifierFactory);
 		train(classifierFactory);
 		Classifier<String> classifier=classifierFactory.getClassifier();
@@ -46,7 +44,7 @@ public class SentenceTest{
 	public void testTfIdfByWordList() throws IOException{
 		TfIdfClassifierFactory<String> tfIdfClassifierFactory=new TfIdfClassifierFactory<>();
 		PreprocessClassifierFactory<Classifier<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
-				TextPreprocessor.of(TextPreprocessor.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)),TextPreprocessor.getWhitespaceFilter(),TextPreprocessor.getDowncaser()),
+				TextPreprocessors.of(TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)),TextPreprocessors.getWhitespaceFilter(),TextPreprocessors.getDowncaser()),
 				tfIdfClassifierFactory);
 		trainByWordList(classifierFactory);
 		Classifier<String> classifier=classifierFactory.getClassifier();

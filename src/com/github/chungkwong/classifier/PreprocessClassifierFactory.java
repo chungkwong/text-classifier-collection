@@ -47,5 +47,4 @@ class PreprocessClassifier<T,S> implements Classifier<T>{
 	public Category classify(T object){
 		return baseClassifier.classify(preprocessor.apply(object));
 	}
-
 }

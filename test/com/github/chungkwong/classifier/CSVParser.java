@@ -29,7 +29,7 @@ public class CSVParser implements Iterator<List<String>>{
 	public CSVParser(Stream<String> lines){
 		this.lines=lines.iterator();
 		this.lines.next();
-	}	
+	}
 	public static Stream<List<String>> parse(Stream<String> lines){
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CSVParser(lines),0),true);
 	}
@@ -49,7 +49,8 @@ public class CSVParser implements Iterator<List<String>>{
 				last=i+1;
 			}else if(c=='"'){
 				StringBuilder field=new StringBuilder();
-				quote:while(true){
+				quote:
+				while(true){
 					for(i=i+1;i<line.length();i++){
 						c=line.charAt(i);
 						if(c=='"'){

@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier.util;
-
 /**
  *
  * @author kwong
@@ -32,8 +31,9 @@ public class CyclicCounter{
 	}
 	public void advance(){
 		++count;
-		if(count==cycle)
+		if(count==cycle){
 			count=0;
+		}
 	}
 	public int getCount(){
 		return count;

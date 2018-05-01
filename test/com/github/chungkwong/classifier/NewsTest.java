@@ -33,7 +33,7 @@ public class NewsTest{
 	public void testTfIdf() throws IOException{
 		TfIdfClassifierFactory<String> tfIdfClassifierFactory=new TfIdfClassifierFactory<>();
 		PreprocessClassifierFactory<Classifier<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
-				TextPreprocessor.of(TextPreprocessor.getJavaTokenizer(BreakIterator.getCharacterInstance(Locale.CHINESE)),TextPreprocessor.getWhitespaceFilter(),TextPreprocessor.getNgramGenerator(2)),
+				TextPreprocessors.of(TextPreprocessors.getJavaTokenizer(BreakIterator.getCharacterInstance(Locale.CHINESE)),TextPreprocessors.getWhitespaceFilter(),TextPreprocessors.getNgramGenerator(2)),
 				tfIdfClassifierFactory);
 		train(classifierFactory);
 		Classifier<String> classifier=classifierFactory.getClassifier();
@@ -45,12 +45,13 @@ public class NewsTest{
 	}
 	public void classify(Classifier<String> classifier) throws IOException{
 		Frequencies<Pair<Category,Category>> table=new Frequencies<>(true);
-		fullDataStream().forEach((sample)->{
+		fullDataStream().parallel().forEach((sample)->{
 			table.advanceFrequency(new Pair<>(sample.getCategory(),classifier.classify(sample.getData())));
 		});
 		Logger.getGlobal().log(Level.INFO,"result:{0}",table.toMap());
 	}
 	public Stream<Sample<String>> fullDataStream() throws IOException{
+		long time=System.currentTimeMillis();
 		Counter c=new Counter();
 		return Files.list(new File("data/THUCNews/THUCNews").toPath())
 				.flatMap((path)->{
@@ -64,8 +65,9 @@ public class NewsTest{
 				.map((path)->{
 					try{
 						c.advance();
-						if(c.getCount()%1000==0)
-							System.out.println(c.getCount());
+						if(c.getCount()%1000==0){
+							System.out.println(c.getCount()+":"+(System.currentTimeMillis()-time)/1000);
+						}
 						return parseFile(path);
 					}catch(IOException ex){
 						Logger.getLogger(NewsTest.class.getName()).log(Level.SEVERE,null,ex);

@@ -43,5 +43,8 @@ public class SimpleClassifierFactory<C extends Classifier<T>,T,P> implements Tra
 	@Override
 	public C getClassifier(){
 		return classifierBuilder.apply(profiles);
-	}	
+	}
+	public Map<Category,P> getProfiles(){
+		return profiles;
+	}
 }

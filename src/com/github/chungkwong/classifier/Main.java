@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import java.io.*;
 import java.text.*;
 import java.util.*;
 import java.util.stream.*;
@@ -23,14 +24,13 @@ import java.util.stream.*;
  * @author kwong
  */
 public class Main{
-
 	/**
 	 * @param args the command line arguments
 	 */
-	public static void main(String[] args){
-		System.out.println(TextPreprocessor.getJavaTokenizer(BreakIterator.getWordInstance(Locale.CHINESE)).apply("我是一个大苹果").collect(Collectors.toList()));
-		System.out.println(TextPreprocessor.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)).apply("I am Tom's I.D.E.").collect(Collectors.toList()));
-		System.out.println(TextPreprocessor.getNgramGenerator(2,4,10).apply(Stream.of("万","里","长","城","永","不","倒")).collect(Collectors.toList()));
+	public static void main(String[] args) throws IOException{
+		System.out.println(TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.CHINESE)).apply("我是一个大苹果").collect(Collectors.toList()));
+		System.out.println(TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)).apply("I am Tom's I.D.E.").collect(Collectors.toList()));
+		System.out.println(TextPreprocessors.getNgramGenerator(2,4,10).apply(Stream.of("万","里","长","城","永","不","倒")).collect(Collectors.toList()));
+		System.out.println(TextPreprocessors.getPorterStemmer().apply(Stream.of("I","was","eating","balls","happily")).collect(Collectors.toList()));
 	}
-	
 }
