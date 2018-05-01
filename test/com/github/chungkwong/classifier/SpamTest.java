@@ -45,14 +45,14 @@ public class SpamTest{
 		classify(classifier);
 	}
 	public void train(TrainableClassifierFactory<Classifier<String>,String> classifierFactory) throws IOException{
-		fullDataStream().forEach((sample)->classifierFactory.train(sample.getData(),sample.getCategory()));
+		trainDataStream().forEach((sample)->classifierFactory.train(sample.getData(),sample.getCategory()));
 	}
 	public void classify(Classifier<String> classifier) throws IOException{
 		AtomicInteger truePositive=new AtomicInteger(0);
 		AtomicInteger trueNegative=new AtomicInteger(0);
 		AtomicInteger falsePositive=new AtomicInteger(0);
 		AtomicInteger falseNegative=new AtomicInteger(0);
-		fullDataStream().forEach((sample)->{
+		testDataStream().forEach((sample)->{
 			Category geussed=classifier.classify(sample.getData());
 			if(geussed==spam&&sample.getCategory()==spam){
 				truePositive.incrementAndGet();

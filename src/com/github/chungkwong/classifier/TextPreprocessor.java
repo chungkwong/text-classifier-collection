@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import com.github.chungkwong.classifier.util.*;
 import java.text.*;
 import java.util.*;
 import java.util.function.*;
@@ -74,5 +75,63 @@ public class TextPreprocessor{
 	}
 	public static Function<Stream<String>,Stream<String>> getDowncaser(Locale locale){
 		return (tokens)->tokens.map((token)->token.toLowerCase(locale));
+	}
+	public static Function<Stream<String>,Stream<String>> getNgramGenerator(int... n){		
+		class NgramIterator implements Iterator<String>{
+			private final Iterator<String> underlying;
+			private final int bufferSize;
+			private final String[] buffer;
+			private final int[] n;
+			private final CyclicCounter bufferPointer;
+			private final CyclicCounter curr;
+			private final int[][] offset;
+			private final StringBuilder str=new StringBuilder();
+			private static final String SEPARATOR=" ";
+			public NgramIterator(Iterator<String> underlying,int... n){
+				this.underlying=underlying;
+				this.n=n;
+				bufferSize=Arrays.stream(n).max().getAsInt();
+				buffer=new String[bufferSize];
+				bufferPointer=new CyclicCounter(bufferSize);
+				curr=new CyclicCounter(n.length);
+				offset=new int[bufferSize][bufferSize];
+				for(int i=0;i<bufferSize;i++)
+					for(int j=0;j<bufferSize;j++)
+						offset[i][j]=(i-j+bufferSize-1)%bufferSize;
+			}
+			@Override
+			public boolean hasNext(){
+				fetchNext();
+				return str.length()>0;
+			}
+			@Override
+			public String next(){
+				fetchNext();
+				String ret=str.toString();
+				str.setLength(0);
+				return ret;
+			}
+			private void fetchNext(){
+				if(str.length()>0)
+					return;
+				while(true){
+					if(curr.getCount()==0){
+						if(!underlying.hasNext())
+							return;
+						buffer[bufferPointer.getCount()]=underlying.next();
+						bufferPointer.advance();
+					}
+					int k=n[curr.getCount()]-1;
+					int p=bufferPointer.getCount();
+					curr.advance();
+					if(buffer[offset[p][k]]!=null){
+						for(int j=k;j>=0;j--)
+							str.append(buffer[offset[p][j]]).append(SEPARATOR);
+						return;
+					}
+				}
+			}
+		}
+		return (tokens)->StreamSupport.stream(Spliterators.spliteratorUnknownSize(new NgramIterator(tokens.iterator(),n),0),false);
 	}
 }
