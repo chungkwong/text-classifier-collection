@@ -20,19 +20,19 @@ package com.github.chungkwong.classifier.util;
  * @author kwong
  */
 public class Counter{
-	private int count;
+	private long count;
 	public Counter(){
 	}
-	public Counter(int count){
+	public Counter(long count){
 		this.count=count;
 	}
-	public int getCount(){
+	public long getCount(){
 		return count;
 	}
 	public void advance(){
 		++count;
 	}
-	public void advance(int times){
+	public void advance(long times){
 		count+=times;
 	}
 	@Override
@@ -42,11 +42,11 @@ public class Counter{
 	@Override
 	public int hashCode(){
 		int hash=5;
-		hash=97*hash+this.count;
+		hash=97*hash+Long.hashCode(count);
 		return hash;
 	}
 	@Override
 	public String toString(){
-		return Integer.toString(count);
+		return Long.toString(count);
 	}
 }

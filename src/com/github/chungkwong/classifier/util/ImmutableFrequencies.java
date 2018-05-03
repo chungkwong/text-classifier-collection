@@ -23,8 +23,8 @@ import java.util.stream.*;
  * @param <T> token type
  */
 public class ImmutableFrequencies<T>{
-	private final Map<T,Integer> frequency;
-	public ImmutableFrequencies(Map<T,Integer> frequency){
+	private final Map<T,Long> frequency;
+	public ImmutableFrequencies(Map<T,Long> frequency){
 		this.frequency=frequency;
 	}
 	public ImmutableFrequencies(Frequencies<T> frequency){
@@ -33,15 +33,15 @@ public class ImmutableFrequencies<T>{
 	}
 	public ImmutableFrequencies(Stream<T> tokens){
 		this.frequency=tokens.collect(
-				Collectors.groupingBy((e)->e,Collectors.summingInt((e)->1)));
+				Collectors.groupingBy((e)->e,Collectors.counting()));
 	}
-	public int getFrequency(T token){
-		return frequency.getOrDefault(token,0);
+	public long getFrequency(T token){
+		return frequency.getOrDefault(token,0L);
 	}
 	public int getTokenCount(){
 		return frequency.size();
 	}
-	public Map<T,Integer> toMap(){
+	public Map<T,Long> toMap(){
 		return frequency;
 	}
 }

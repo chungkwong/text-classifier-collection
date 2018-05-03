@@ -32,5 +32,13 @@ public class Main{
 		System.out.println(TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)).apply("I am Tom's I.D.E.").collect(Collectors.toList()));
 		System.out.println(TextPreprocessors.getNgramGenerator(2,4,10).apply(Stream.of("万","里","长","城","永","不","倒")).collect(Collectors.toList()));
 		System.out.println(TextPreprocessors.getPorterStemmer().apply(Stream.of("I","was","eating","balls","happily")).collect(Collectors.toList()));
+		TfIdfClassifierFactory<String> tfIdfClassifierFactory=new TfIdfClassifierFactory<>();
+		tfIdfClassifierFactory.getBase().loadModel(new File("data/THUCNews/stat"),(x)->x);
+		Map<Category,FrequencyClassifierFactory.FrequencyProfile<String>> profiles=tfIdfClassifierFactory.getBase().getProfiles();
+		profiles.forEach((k,v)->{
+			System.out.println(k);
+			v.getTokenFrequency().toMap().entrySet().stream().limit(20).
+					forEach((e)->System.out.println(e.getKey()+":"+e.getValue()));
+		});
 	}
 }

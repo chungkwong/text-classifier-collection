@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
-import com.github.chungkwong.classifier.FrequencyClassifierFactory.FrequencyProfile;
 import com.github.chungkwong.classifier.util.*;
 import java.util.*;
 import java.util.stream.*;
@@ -30,11 +29,15 @@ public class TfIdfClassifierFactory<T> implements TrainableClassifierFactory<Cla
 	public static final TfIdfFormula FREQUENCY=((freq,docFreq,docCount)->{
 		return freq;
 	});
+	public static final TfIdfFormula THREHOLD=((freq,docFreq,docCount)->{
+		return freq==0?0:1;
+	});
 	private final FrequencyClassifierFactory<Classifier<Stream<T>>,T> base;
 	private TfIdfFormula tfIdfFormula;
 	public TfIdfClassifierFactory(){
 		tfIdfFormula=STANDARD;
-		base=new FrequencyClassifierFactory<>((profiles)->new TfIdfClassifier<>(getImmutableProfiles(),getTotalDocumentFrequencies(),getSampleCount(),getTfIdfFormula()));
+		base=new FrequencyClassifierFactory<>((profiles)->new TfIdfClassifier<>(
+				getBase().getImmutableProfiles(),getBase().getTotalDocumentFrequencies(),getBase().getSampleCount(),getTfIdfFormula()));
 	}
 	public TfIdfClassifierFactory<T> setTfIdfFormula(TfIdfFormula tfIdfFormula){
 		this.tfIdfFormula=tfIdfFormula;
@@ -51,29 +54,20 @@ public class TfIdfClassifierFactory<T> implements TrainableClassifierFactory<Cla
 	public Classifier<Stream<T>> getClassifier(){
 		return base.getClassifier();
 	}
-	public Map<Category,FrequencyProfile<T>> getProfile(){
-		return base.getProfiles();
-	}
-	public Map<Category,ImmutableFrequencies<T>> getImmutableProfiles(){
-		return base.getImmutableProfiles();
-	}
-	public ImmutableFrequencies<T> getTotalDocumentFrequencies(){
-		return base.getTotalDocumentFrequencies();
-	}
-	public int getSampleCount(){
-		return base.getSampleCount();
+	public FrequencyClassifierFactory<Classifier<Stream<T>>,T> getBase(){
+		return base;
 	}
 	@FunctionalInterface
 	public interface TfIdfFormula{
-		double calculate(int freq,int docFreq,int docCount);
+		double calculate(long freq,long docFreq,long docCount);
 	}
 	private static class TfIdfClassifier<T> implements Classifier<Stream<T>>{
-		private Map<Category,ImmutableFrequencies<T>> profiles=new HashMap<>();
-		private ImmutableFrequencies<T> documentFrequencies;
-		private final int documentCount;
+		private final Map<Category,ImmutableFrequencies<T>> profiles;
+		private final ImmutableFrequencies<T> documentFrequencies;
+		private final long documentCount;
 		private final TfIdfClassifierFactory.TfIdfFormula tfIdfFormula;
 		public TfIdfClassifier(Map<Category,ImmutableFrequencies<T>> profiles,
-				ImmutableFrequencies<T> documentFrequencies,int documentCount,
+				ImmutableFrequencies<T> documentFrequencies,long documentCount,
 				TfIdfClassifierFactory.TfIdfFormula tfIdfFormula){
 			this.profiles=profiles;
 			this.documentFrequencies=documentFrequencies;
@@ -97,9 +91,9 @@ public class TfIdfClassifierFactory<T> implements TrainableClassifierFactory<Cla
 				longer=category;
 			}
 			double product=0, shortModSq=0, longModSq=0;
-			Iterator<Map.Entry<T,Integer>> iterator=shorter.toMap().entrySet().iterator();
+			Iterator<Map.Entry<T,Long>> iterator=shorter.toMap().entrySet().iterator();
 			while(iterator.hasNext()){
-				Map.Entry<T,Integer> next=iterator.next();
+				Map.Entry<T,Long> next=iterator.next();
 				T token=next.getKey();
 				double shortTfIdf=tfIdfFormula.calculate(next.getValue(),documentFrequencies.getFrequency(token),documentCount);
 				double longTfIdf=tfIdfFormula.calculate(longer.getFrequency(token),documentFrequencies.getFrequency(token),documentCount);

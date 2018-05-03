@@ -15,12 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
-import com.github.chungkwong.classifier.util.*;
 import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
-import java.text.*;
-import java.util.*;
 import java.util.logging.*;
 import java.util.stream.*;
 import org.junit.*;
@@ -31,53 +28,51 @@ import org.junit.*;
 public class SentenceTest{
 	@Test
 	public void testTfIdf() throws IOException{
-		TfIdfClassifierFactory<String> tfIdfClassifierFactory=new TfIdfClassifierFactory<>();
-		PreprocessClassifierFactory<Classifier<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
-				TextPreprocessors.of(TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)),TextPreprocessors.getWhitespaceFilter(),TextPreprocessors.getDowncaser()),
-				tfIdfClassifierFactory);
-		train(classifierFactory);
-		Classifier<String> classifier=classifierFactory.getClassifier();
-		classifierFactory=null;
-		classify(classifier);
+		ClassifierTest<String> tester=new ClassifierTest<>(()->fullDataStream(),()->fullDataStream());
+		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishTfIdfClassifierFactory())));
 	}
 	@Test
-	public void testTfIdfByWordList() throws IOException{
-		TfIdfClassifierFactory<String> tfIdfClassifierFactory=new TfIdfClassifierFactory<>();
-		PreprocessClassifierFactory<Classifier<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
-				TextPreprocessors.of(TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)),TextPreprocessors.getWhitespaceFilter(),TextPreprocessors.getDowncaser()),
-				tfIdfClassifierFactory);
-		trainByWordList(classifierFactory);
-		Classifier<String> classifier=classifierFactory.getClassifier();
-		classifierFactory=null;
-		classify(classifier);
+	public void testBayesian() throws IOException{
+		ClassifierTest<String> tester=new ClassifierTest<>(()->fullDataStream(),()->fullDataStream());
+		Logger.getGlobal().log(Level.INFO,"SENTENCE Bayesian: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>()))));
 	}
-	public void train(TrainableClassifierFactory<Classifier<String>,String> classifierFactory) throws IOException{
-		fullDataStream().forEach((sample)->classifierFactory.train(sample.getData(),sample.getCategory()));
+	@Test
+	public void testTfIdfOnWordList() throws IOException{
+		ClassifierTest<String> tester=new ClassifierTest<>(()->trainDataStream(),()->fullDataStream());
+		Logger.getGlobal().log(Level.INFO,"SENTENCE Word: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishClassifierFactory(new TfIdfClassifierFactory<String>().setTfIdfFormula(TfIdfClassifierFactory.THREHOLD)))));
 	}
-	public void trainByWordList(TrainableClassifierFactory<Classifier<String>,String> classifierFactory) throws IOException{
-		classifierFactory.train(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/aim.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("AIMX"));
-		classifierFactory.train(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/base.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("BASE"));
-		classifierFactory.train(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/contrast.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("CONT"));
-		classifierFactory.train(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/own.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("OWNX"));
+	@Test
+	public void testBayesianOnWordList() throws IOException{
+		ClassifierTest<String> tester=new ClassifierTest<>(()->trainDataStream(),()->fullDataStream());
+		Logger.getGlobal().log(Level.INFO,"SENTENCE Bayesian Word: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>()))));
 	}
-	public void classify(Classifier<String> classifier) throws IOException{
-		Frequencies<Pair<Category,Category>> table=new Frequencies<>(true);
-		fullDataStream().forEach((sample)->{
-			table.advanceFrequency(new Pair<>(sample.getCategory(),classifier.classify(sample.getData())));
-		});
-		Logger.getGlobal().log(Level.INFO,"result:{0}",table.toMap());
+	public Stream<Sample<String>> fullDataStream(){
+		try{
+			return Files.list(new File("data/SentenceCorpus/SentenceCorpus/labeled_articles").toPath())
+					.flatMap((path)->{
+						try{
+							return Files.lines(path,StandardCharsets.UTF_8).filter((line)->!line.startsWith("#"));
+						}catch(IOException ex){
+							Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
+							return Stream.empty();
+						}
+					})
+					.map((line)->parseLine(line));
+		}catch(IOException ex){
+			Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
+			return Stream.empty();
+		}
 	}
-	public Stream<Sample<String>> fullDataStream() throws IOException{
-		return Files.list(new File("data/SentenceCorpus/SentenceCorpus/labeled_articles").toPath())
-				.flatMap((path)->{
-					try{
-						return Files.lines(path,StandardCharsets.UTF_8).filter((line)->!line.startsWith("#"));
-					}catch(IOException ex){
-						Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
-						return Stream.empty();
-					}
-				})
-				.map((line)->parseLine(line));
+	public Stream<Sample<String>> trainDataStream(){
+		try{
+			return Stream.of(new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/aim.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("AIMX")),
+				new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/base.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("BASE")),
+				new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/contrast.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("CONT")),
+				new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/own.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("OWNX")));
+		}catch(IOException ex){
+			Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
+			return Stream.empty();
+		}
 	}
 	public Sample<String> parseLine(String line){
 		return new Sample<>(line.substring(5),new Category(line.substring(0,4)));

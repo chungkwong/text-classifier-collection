@@ -37,7 +37,7 @@ public class Frequencies<T>{
 			counter.advance();
 		}
 	}
-	public void advanceFrequency(T token,int times){
+	public void advanceFrequency(T token,long times){
 		Counter counter=frequency.get(token);
 		if(counter==null){
 			counter=new Counter(times);
@@ -49,7 +49,7 @@ public class Frequencies<T>{
 	public void merge(Frequencies<T> toMerge){
 		toMerge.frequency.forEach((k,v)->advanceFrequency(k,v.getCount()));
 	}
-	public int getFrequency(T token){
+	public long getFrequency(T token){
 		Counter counter=frequency.get(token);
 		return counter==null?0:counter.getCount();
 	}
