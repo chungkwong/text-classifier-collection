@@ -73,12 +73,14 @@ public class ClassifierTest<T>{
 		});
 		Category[] cats=categories.toArray(new Category[0]);
 		StringBuilder buf=new StringBuilder("\n");
-		for(Category category:cats)
+		for(Category category:cats){
 			buf.append('\t').append(category);
+		}
 		for(Category first:cats){
 			buf.append('\n').append(first);
-			for(Category second:cats)
+			for(Category second:cats){
 				buf.append('\t').append(frequencies.getFrequency(new Pair<>(first,second)));
+			}
 		}
 		return buf.toString();
 	}

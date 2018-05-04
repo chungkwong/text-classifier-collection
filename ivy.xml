@@ -6,5 +6,7 @@
 	<info organisation="com.github.chungkwong" module="text-classifier"/>
 	<dependencies defaultconfmapping="default->master,compile" defaultconf="default">
 		<dependency org="com.ibm.icu" name="icu4j" rev="61.1"/>
+		<dependency org="tw.edu.ntu.csie" name="libsvm" rev="3.17"/>
+
 	</dependencies>
 </ivy-module>

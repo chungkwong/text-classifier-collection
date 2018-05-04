@@ -19,8 +19,6 @@ import com.github.chungkwong.classifier.util.*;
 import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
-import java.text.*;
-import java.util.*;
 import java.util.logging.*;
 import java.util.stream.*;
 import org.junit.*;
@@ -31,49 +29,40 @@ import org.junit.*;
 public class NewsTest{
 	@Test
 	public void testTfIdf() throws IOException{
+		ClassifierTest<String> tester=new ClassifierTest<>(()->Stream.empty(),()->fullDataStream());
 		TfIdfClassifierFactory<String> tfIdfClassifierFactory=new TfIdfClassifierFactory<>();
-		PreprocessClassifierFactory<Classifier<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
-				TextPreprocessors.of(TextPreprocessors.getJavaTokenizer(BreakIterator.getCharacterInstance(Locale.CHINESE)),TextPreprocessors.getWhitespaceFilter(),TextPreprocessors.getNgramGenerator(2)),
-				tfIdfClassifierFactory);
-		train(classifierFactory);
-		Classifier<String> classifier=classifierFactory.getClassifier();
-		classifierFactory=null;
-		classify(classifier);
+		tfIdfClassifierFactory.getBase().loadModel(new File("data/THUCNews/stat"),(x)->x);
+		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getChineseClassifierFactory(tfIdfClassifierFactory))));
 	}
-	public void train(TrainableClassifierFactory<Classifier<String>,String> classifierFactory) throws IOException{
-		fullDataStream().forEach((sample)->classifierFactory.train(sample.getData(),sample.getCategory()));
-	}
-	public void classify(Classifier<String> classifier) throws IOException{
-		Frequencies<Pair<Category,Category>> table=new Frequencies<>(true);
-		fullDataStream().parallel().forEach((sample)->{
-			table.advanceFrequency(new Pair<>(sample.getCategory(),classifier.classify(sample.getData())));
-		});
-		Logger.getGlobal().log(Level.INFO,"result:{0}",table.toMap());
-	}
-	public Stream<Sample<String>> fullDataStream() throws IOException{
-		long time=System.currentTimeMillis();
-		Counter c=new Counter();
-		return Files.list(new File("data/THUCNews/THUCNews").toPath())
-				.flatMap((path)->{
-					try{
-						return Files.list(path);
-					}catch(IOException ex){
-						Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
-						return Stream.empty();
-					}
-				})
-				.map((path)->{
-					try{
-						c.advance();
-						if(c.getCount()%1000==0){
-							System.out.println(c.getCount()+":"+(System.currentTimeMillis()-time)/1000);
+	public Stream<Sample<String>> fullDataStream(){
+		try{
+			long time=System.currentTimeMillis();
+			Counter c=new Counter();
+			return Files.list(new File("data/THUCNews/THUCNews").toPath())
+					.flatMap((path)->{
+						try{
+							return Files.list(path);
+						}catch(IOException ex){
+							Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
+							return Stream.empty();
 						}
-						return parseFile(path);
-					}catch(IOException ex){
-						Logger.getLogger(NewsTest.class.getName()).log(Level.SEVERE,null,ex);
-						throw new RuntimeException(ex);
-					}
-				});
+					})
+					.map((path)->{
+						try{
+							c.advance();
+							if(c.getCount()%1000==0){
+								System.out.println(c.getCount()+":"+(System.currentTimeMillis()-time)/1000);
+							}
+							return parseFile(path);
+						}catch(IOException ex){
+							Logger.getLogger(NewsTest.class.getName()).log(Level.SEVERE,null,ex);
+							throw new RuntimeException(ex);
+						}
+					});
+		}catch(IOException ex){
+			Logger.getLogger(NewsTest.class.getName()).log(Level.SEVERE,null,ex);
+			return Stream.empty();
+		}
 	}
 	public Sample<String> parseFile(Path path) throws IOException{
 		String content=new String(Files.readAllBytes(path),StandardCharsets.UTF_8);

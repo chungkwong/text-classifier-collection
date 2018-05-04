@@ -66,9 +66,9 @@ public class SentenceTest{
 	public Stream<Sample<String>> trainDataStream(){
 		try{
 			return Stream.of(new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/aim.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("AIMX")),
-				new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/base.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("BASE")),
-				new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/contrast.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("CONT")),
-				new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/own.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("OWNX")));
+					new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/base.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("BASE")),
+					new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/contrast.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("CONT")),
+					new Sample<>(Files.lines(new File("data/SentenceCorpus/SentenceCorpus/word_lists/own.txt").toPath(),StandardCharsets.UTF_8).collect(Collectors.joining(" ")),new Category("OWNX")));
 		}catch(IOException ex){
 			Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
 			return Stream.empty();

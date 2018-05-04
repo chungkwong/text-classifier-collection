@@ -74,15 +74,19 @@ public class FrequencyClassifierFactory<C extends Classifier<Stream<T>>,T> exten
 			String categoryName=path.getFileName().toString();
 			categoryName=categoryName.substring(0,categoryName.length()-DOC_COUNT.length());
 			Category category=new Category(categoryName);
-			if(!getProfiles().containsKey(category))
+			System.err.println(categoryName);
+			if(!getProfiles().containsKey(category)){
 				getProfiles().put(category,new FrequencyProfile<>());
+			}
 			FrequencyProfile<T> profile=getProfiles().get(category);
 			try{
 				profile.setDocumentCount(Long.valueOf(new String(Files.readAllBytes(path),StandardCharsets.UTF_8).trim()));
 				Files.lines(new File(directory,categoryName+DOC_FREQ).toPath(),StandardCharsets.UTF_8).
 						forEach((line)->loadLine(line,profile.getDocumentFrequency(),decoder));
+				System.err.println("A");
 				Files.lines(new File(directory,categoryName+TOKEN_FREQ).toPath(),StandardCharsets.UTF_8).
 						forEach((line)->loadLine(line,profile.getTokenFrequency(),decoder));
+				System.err.println("B");
 			}catch(IOException ex){
 				Logger.getLogger(FrequencyClassifierFactory.class.getName()).log(Level.SEVERE,null,ex);
 			}
@@ -90,8 +94,9 @@ public class FrequencyClassifierFactory<C extends Classifier<Stream<T>>,T> exten
 	}
 	private void loadLine(String line,Frequencies<T> frequencies,Function<String,T> decoder){
 		int cut=line.indexOf('\t');
-		if(cut!=-1)
+		if(cut!=-1){
 			frequencies.advanceFrequency(decoder.apply(line.substring(0,cut)),Long.valueOf(line.substring(cut+1)));
+		}
 	}
 	private static final String DOC_FREQ="_docFreq";
 	private static final String TOKEN_FREQ="_tokenFreq";
