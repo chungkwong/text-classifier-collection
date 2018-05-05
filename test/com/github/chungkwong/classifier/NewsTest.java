@@ -15,7 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import com.github.chungkwong.classifier.validator.Sample;
 import com.github.chungkwong.classifier.util.*;
+import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
@@ -29,10 +31,9 @@ import org.junit.*;
 public class NewsTest{
 	@Test
 	public void testTfIdf() throws IOException{
-		ClassifierTest<String> tester=new ClassifierTest<>(()->Stream.empty(),()->fullDataStream());
 		TfIdfClassifierFactory<String> tfIdfClassifierFactory=new TfIdfClassifierFactory<>();
 		tfIdfClassifierFactory.getBase().loadModel(new File("data/THUCNews/stat"),(x)->x);
-		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getChineseClassifierFactory(tfIdfClassifierFactory))));
+		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",Validator.validate(Stream.empty(),fullDataStream(),ClassifierTest.getChineseClassifierFactory(tfIdfClassifierFactory)));
 	}
 	public Stream<Sample<String>> fullDataStream(){
 		try{

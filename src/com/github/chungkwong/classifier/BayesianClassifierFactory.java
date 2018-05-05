@@ -57,7 +57,7 @@ public class BayesianClassifierFactory<T> implements TrainableClassifierFactory<
 			this.tokenCount=tokenFrequencies.getTokenCount();
 		}
 		@Override
-		public Category classify(Stream<T> object){
+		public List<ClassificationResult> getCandidates(Stream<T> object,int max){
 			Category[] categories=profiles.keySet().toArray(new Category[0]);
 			double[] score=new double[categories.length];
 			Arrays.fill(score,1.0);
@@ -71,15 +71,11 @@ public class BayesianClassifierFactory<T> implements TrainableClassifierFactory<
 				maxExp[0]=maxExp[1];
 				maxExp[1]=-Double.MIN_EXPONENT;
 			});
-			double best=0.0;
-			int bestIndex=-1;
+			ArrayList<ClassificationResult> results=new ArrayList<>(categories.length);
 			for(int i=0;i<categories.length;i++){
-				if(score[i]>best){
-					best=score[i];
-					bestIndex=i;
-				}
+				results.add(new ClassificationResult(score[i],categories[i]));
 			}
-			return bestIndex==-1?null:categories[bestIndex];
+			return results;
 		}
 		private double getCategoryProbability(Category category,T token){
 			return getCategoryProbability(category)*getTokenProbability(token,category)/getTokenProbability(token);

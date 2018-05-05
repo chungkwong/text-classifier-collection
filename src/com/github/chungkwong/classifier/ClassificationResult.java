@@ -15,39 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
-import java.util.*;
 /**
- * Category, i.e. class label in classification
+ *
  * @author kwong
  */
-public class Category{
-	private final String name;
-	/**
-	 * Create a category
-	 * @param name the label of the category
-	 */
-	public Category(String name){
-		this.name=name;
+public class ClassificationResult implements Comparable<ClassificationResult>{
+	private final double score;
+	private final Category category;
+	public ClassificationResult(double score,Category category){
+		this.score=score;
+		this.category=category;
 	}
-	/**
-	 * Get the label of the category
-	 * @return the label of the category
-	 */
-	public String getName(){
-		return name;
+	public Category getCategory(){
+		return category;
 	}
-	@Override
-	public boolean equals(Object obj){
-		return obj instanceof Category&&Objects.equals(((Category)obj).name,name);
-	}
-	@Override
-	public int hashCode(){
-		int hash=3;
-		hash=83*hash+Objects.hashCode(this.name);
-		return hash;
+	public double getScore(){
+		return score;
 	}
 	@Override
 	public String toString(){
-		return name;
+		return category+":"+score;
+	}
+	@Override
+	public int compareTo(ClassificationResult o){
+		return Double.compare(o.score,score);
 	}
 }

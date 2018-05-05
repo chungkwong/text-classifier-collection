@@ -14,40 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.chungkwong.classifier;
-import java.util.*;
+package com.github.chungkwong.classifier.validator;
+import java.util.function.*;
+import java.util.stream.*;
 /**
- * Category, i.e. class label in classification
+ *
  * @author kwong
  */
-public class Category{
+public class SplitDataset<T>{
+	private final Supplier<Stream<Sample<T>>> trainSampleSupplier;
+	private final Supplier<Stream<Sample<T>>> testSampleSupplier;
 	private final String name;
-	/**
-	 * Create a category
-	 * @param name the label of the category
-	 */
-	public Category(String name){
+	public SplitDataset(Supplier<Stream<Sample<T>>> trainSampleSupplier,Supplier<Stream<Sample<T>>> testSampleSupplier,String name){
+		this.trainSampleSupplier=trainSampleSupplier;
+		this.testSampleSupplier=testSampleSupplier;
 		this.name=name;
+	}	
+	public Stream<Sample<T>> getTrainSamples(){
+		return trainSampleSupplier.get();
 	}
-	/**
-	 * Get the label of the category
-	 * @return the label of the category
-	 */
+	public Stream<Sample<T>> getTestSamples(){
+		return testSampleSupplier.get();
+	}
 	public String getName(){
 		return name;
 	}
 	@Override
-	public boolean equals(Object obj){
-		return obj instanceof Category&&Objects.equals(((Category)obj).name,name);
-	}
-	@Override
-	public int hashCode(){
-		int hash=3;
-		hash=83*hash+Objects.hashCode(this.name);
-		return hash;
-	}
-	@Override
 	public String toString(){
-		return name;
+		return getName();
 	}
+	
 }

@@ -30,5 +30,7 @@ public class Main{
 		System.out.println(TextPreprocessors.getPorterStemmer().apply(Stream.of("I","was","eating","balls","happily")).collect(Collectors.toList()));
 		System.out.println(TextPreprocessors.getLovinsStemmer().apply(Stream.of("I","was","eating","balls","happily")).collect(Collectors.toList()));
 		System.out.println(TextPreprocessors.getStemmer(Locale.ENGLISH).apply(Stream.of("I","was","eating","balls","happily")).collect(Collectors.toList()));
+		System.out.println(TextPreprocessors.getIcuTransformer("Simplified-Traditional").apply("万里长城永不倒"));
+		System.out.println("hello".replaceFirst("([a-z])","$1$1"));
 	}
 }

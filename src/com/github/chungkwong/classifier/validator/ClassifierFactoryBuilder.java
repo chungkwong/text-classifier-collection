@@ -14,26 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.chungkwong.classifier;
+package com.github.chungkwong.classifier.validator;
+import com.github.chungkwong.classifier.*;
+import java.util.function.*;
 /**
  *
  * @author kwong
  */
-public class ScoredCategory{
-	private final double score;
-	private final Category category;
-	public ScoredCategory(double score,Category category){
-		this.score=score;
-		this.category=category;
+public class ClassifierFactoryBuilder<T>{
+	private final Supplier<TrainableClassifierFactory<Classifier<T>,T>> factorySupplier;
+	private final String name;
+	public ClassifierFactoryBuilder(Supplier<TrainableClassifierFactory<Classifier<T>,T>> factorySupplier,String name){
+		this.factorySupplier=factorySupplier;
+		this.name=name;
 	}
-	public Category getCategory(){
-		return category;
+	public TrainableClassifierFactory<Classifier<T>,T> getFactory(){
+		return factorySupplier.get();
 	}
-	public double getScore(){
-		return score;
+	public String getName(){
+		return name;
 	}
 	@Override
 	public String toString(){
-		return category+":"+score;
+		return getName();
 	}
 }

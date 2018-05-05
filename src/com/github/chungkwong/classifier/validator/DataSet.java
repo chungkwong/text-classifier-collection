@@ -14,27 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.chungkwong.classifier;
-import com.github.chungkwong.classifier.Category;
+package com.github.chungkwong.classifier.validator;
+import com.github.chungkwong.classifier.*;
+import java.util.*;
+import java.util.stream.*;
 /**
  *
  * @author kwong
  */
-public class Sample<T>{
-	private final T data;
-	private final Category category;
-	public Sample(T data,Category category){
-		this.category=category;
-		this.data=data;
+public interface DataSet<T>{
+	Stream<Sample<T>> getTestSamples();
+	static <T> DataSet<T> of(Sample<T>... samples){
+		return ()->Arrays.stream(samples);
 	}
-	public T getData(){
-		return data;
+	static <T> DataSet<T> of(Collection<Sample<T>> samples){
+		return ()->samples.stream();
 	}
-	public Category getCategory(){
-		return category;
-	}
-	@Override
-	public String toString(){
-		return category+":"+data;
+	static <T> DataSet<T> of(Map<Category,T> samples){
+		return ()->samples.entrySet().stream().map((e)->new Sample<>(e.getValue(),e.getKey()));
 	}
 }

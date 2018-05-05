@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
@@ -26,27 +27,21 @@ import org.junit.*;
  * @author kwong
  */
 public class SpamTest{
-	private final ClassifierTest<String> fullTester;
-	private final ClassifierTest<String> partialTester;
-	public SpamTest(){
-		fullTester=new ClassifierTest<>(()->fullDataStream(),()->fullDataStream());
-		partialTester=new ClassifierTest<>(()->trainDataStream(),()->testDataStream());
-	}
 	@Test
 	public void testTfIdfFull() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SPAM TF-IDF: {0}",ClassifierTest.toString(fullTester.test(ClassifierTest.getEnglishTfIdfClassifierFactory())));
+		Logger.getGlobal().log(Level.INFO,"SPAM TF-IDF: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishTfIdfClassifierFactory()));
 	}
 	@Test
 	public void testBayesian() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SPAM Bayesian predict: {0}",ClassifierTest.toString(partialTester.test(ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>()))));
+		Logger.getGlobal().log(Level.INFO,"SPAM Bayesian predict: {0}",Validator.validate(trainDataStream(),testDataStream(),ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>())));
 	}
 	@Test
 	public void testTfIdf() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SPAM TF-IDF predict: {0}",ClassifierTest.toString(partialTester.test(ClassifierTest.getEnglishTfIdfClassifierFactory())));
+		Logger.getGlobal().log(Level.INFO,"SPAM TF-IDF predict: {0}",Validator.validate(trainDataStream(),testDataStream(),ClassifierTest.getEnglishTfIdfClassifierFactory()));
 	}
 	@Test
 	public void testBayesianFull() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SPAM Bayesian: {0}",ClassifierTest.toString(fullTester.test(ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>()))));
+		Logger.getGlobal().log(Level.INFO,"SPAM Bayesian: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>())));
 	}
 	public Stream<Sample<String>> trainDataStream(){
 		try{

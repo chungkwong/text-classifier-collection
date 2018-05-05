@@ -14,40 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.chungkwong.classifier;
-import java.util.*;
+package com.github.chungkwong.classifier.validator;
+import com.github.chungkwong.classifier.Category;
+import com.github.chungkwong.classifier.Category;
 /**
- * Category, i.e. class label in classification
+ *
  * @author kwong
  */
-public class Category{
-	private final String name;
-	/**
-	 * Create a category
-	 * @param name the label of the category
-	 */
-	public Category(String name){
-		this.name=name;
+public class Sample<T>{
+	private final T data;
+	private final Category category;
+	public Sample(T data,Category category){
+		this.category=category;
+		this.data=data;
 	}
-	/**
-	 * Get the label of the category
-	 * @return the label of the category
-	 */
-	public String getName(){
-		return name;
+	public T getData(){
+		return data;
 	}
-	@Override
-	public boolean equals(Object obj){
-		return obj instanceof Category&&Objects.equals(((Category)obj).name,name);
-	}
-	@Override
-	public int hashCode(){
-		int hash=3;
-		hash=83*hash+Objects.hashCode(this.name);
-		return hash;
+	public Category getCategory(){
+		return category;
 	}
 	@Override
 	public String toString(){
-		return name;
+		return category+":"+data;
 	}
 }

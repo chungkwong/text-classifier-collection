@@ -16,9 +16,12 @@
  */
 package com.github.chungkwong.classifier;
 import com.github.chungkwong.classifier.util.*;
-import java.text.*;
+import com.ibm.icu.text.*;
+import java.text.BreakIterator;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.function.*;
+import java.util.regex.*;
 import java.util.stream.*;
 import org.tartarus.snowball.*;
 import org.tartarus.snowball.ext.*;
@@ -28,17 +31,23 @@ import org.tartarus.snowball.ext.*;
  */
 public class TextPreprocessors{
 	/**
-	 * Combining a tokenizer and a chain of filters
+	 * Combining a tokenizer and some filters
+	 * @param preTokenize the filter being applied before tokenization
 	 * @param tokenizer being used to break text into tokens
-	 * @param filters being used to transform the stream of token
+	 * @param postTokenize the filter being applied after tokenization
 	 * @return the combined preprocessor
 	 */
-	public static Function<String,Stream<String>> of(Function<String,Stream<String>> tokenizer,Function<Stream<String>,Stream<String>>... filters){
-		Function<String,Stream<String>> preprocessor=tokenizer;
-		for(Function<Stream<String>,Stream<String>> filter:filters){
-			preprocessor=preprocessor.andThen(filter);
-		}
-		return preprocessor;
+	public static Function<String,Stream<String>> of(Function<String,String> preTokenize,Function<String,Stream<String>> tokenizer,Function<Stream<String>,Stream<String>> postTokenize){
+		return preTokenize.andThen(tokenizer).andThen(postTokenize);
+	}
+	/**
+	 * Combining a tokenizer and some filters
+	 * @param tokenizer being used to break text into tokens
+	 * @param postTokenize the filter being applied after tokenization
+	 * @return the combined preprocessor
+	 */
+	public static Function<String,Stream<String>> of(Function<String,Stream<String>> tokenizer,Function<Stream<String>,Stream<String>> postTokenize){
+		return tokenizer.andThen(postTokenize);
 	}
 	/**
 	 * A preprocessor that break text into tokens 
@@ -72,29 +81,202 @@ public class TextPreprocessors{
 		return (text)->StreamSupport.stream(Spliterators.spliteratorUnknownSize(new TokenIterator(text),0),false);
 	}
 	/**
-	 * A preprocessor that apply Unicode normalization to the tokens 
+	 * A preprocessor that break text into tokens by split text at separator
+	 * @param pattern the pattern of separators
+	 * @param keepSeparator if the separators become tokens
+	 * @return the tokenizer
+	 */
+	public static Function<String,Stream<String>> getSeparatorTokenizer(Pattern pattern,boolean keepSeparator){
+		class TokenIterator implements Iterator<String>{
+			private final String text;
+			private final Matcher matcher;
+			private int lower,upper;
+			public TokenIterator(String text){
+				this.text=text;
+				this.matcher=pattern.matcher(text);
+				if(matcher.find()){
+					if(matcher.start()==0){
+						upper=matcher.end();
+						if(!keepSeparator){
+							findSeparator();
+						}
+					}else{
+						upper=matcher.start();
+					}
+				}else{
+					upper=text.length();
+				}
+			}
+			@Override
+			public boolean hasNext(){
+				return lower<upper;
+			}
+			@Override
+			public String next(){
+				String token=text.substring(lower,upper);
+				find();
+				return token;
+			}
+			private void find(){
+				if(keepSeparator&&upper!=text.length()&&upper==matcher.start()){
+					lower=matcher.start();
+					upper=matcher.end();
+				}else{
+					findSeparator();
+				}
+			}
+			private void findSeparator(){
+				if(upper==text.length()){
+					lower=upper;
+				}else{
+					lower=matcher.end();
+					if(matcher.find()){
+						upper=matcher.start();
+					}else{
+						upper=text.length();
+					}
+				}
+			}
+		}
+		return (text)->StreamSupport.stream(Spliterators.spliteratorUnknownSize(new TokenIterator(text),0),false);
+	}
+	/**
+	 * A preprocessor that break text into tokens matching a pattern
+	 * @param pattern the pattern of word
+	 * @param keepOther if the character sequence not forming a word become token
+	 * @return the tokenizer
+	 */
+	public static Function<String,Stream<String>> getWordTokenizer(Pattern pattern,boolean keepOther){
+		class TokenIterator implements Iterator<String>{
+			private final String text;
+			private final Matcher matcher;
+			private int lower,upper;
+			public TokenIterator(String text){
+				this.text=text;
+				this.matcher=pattern.matcher(text);
+				if(keepOther){
+					if(matcher.find()){
+						upper=matcher.start()==0?matcher.end():matcher.start();
+					}else{
+						upper=text.length();
+					}
+				}else{
+					if(matcher.find()){
+						lower=matcher.start();
+						upper=matcher.end();
+					}
+				}
+			}
+			@Override
+			public boolean hasNext(){
+				return lower<upper;
+			}
+			@Override
+			public String next(){
+				String token=text.substring(lower,upper);
+				if(upper==text.length()){
+					lower=upper;
+				}else if(keepOther){
+					if(lower==matcher.start()){
+						if(matcher.find()){
+							lower=upper;
+							upper=matcher.start();
+						}else{
+							lower=upper;
+							upper=text.length();
+						}
+					}else{
+						lower=matcher.start();
+						upper=matcher.end();
+					}
+				}else{
+					if(matcher.find()){
+						lower=matcher.start();
+						upper=matcher.end();
+					}else{
+						lower=upper;
+					}
+				}
+				return token;
+			}
+		}
+		return (text)->StreamSupport.stream(Spliterators.spliteratorUnknownSize(new TokenIterator(text),0),false);
+	}
+	/**
+	 * A pre-tokenize preprocessor that apply Unicode normalization to the text
 	 * @param form Unicode normalization form
 	 * @return the normalizier
 	 */
-	public static Function<Stream<String>,Stream<String>> getJavaNormalizier(Normalizer.Form form){
-		return (tokens)->tokens.map((token)->Normalizer.normalize(token,form));
+	public static Function<String,String> getJavaNormalizier(Normalizer.Form form){
+		return (text)->Normalizer.normalize(text,form);
 	}
 	/**
-	 * A preprocessor that drop tokens that are whitespace only
+	 * A pre-tokenize preprocessor that apply text transformation
+	 * icu4j is required
+	 * @param transformer a value from Transliterator.getAvailableIDs()
+	 * @return the normalizier
+	 */
+	public static Function<String,String> getIcuTransformer(String transformer){
+		return (text)->Transliterator.getInstance(transformer).transform(text);
+	}
+	/**
+	 * A pre-tokenize preprocessor that apply text transformation
+	 * icu4j is required
+	 * @param transformer a value from Transliterator.getAvailableIDs() 
+	 * @param reverse reverse the direction
+	 * @return the normalizier
+	 */
+	public static Function<String,String> getIcuTransformer(String transformer,boolean reverse){
+		return (text)->Transliterator.getInstance(transformer,reverse?Transliterator.REVERSE:Transliterator.FORWARD).transform(text);
+	}
+	/**
+	 * A post-tokenize preprocessor that drop tokens that are whitespace only
 	 * @return the filter
 	 */
 	public static Function<Stream<String>,Stream<String>> getWhitespaceFilter(){
 		return (tokens)->tokens.filter((token)->!token.codePoints().allMatch(Character::isWhitespace));
 	}
 	/**
-	 * A preprocessor that transform tokens into upper case
+	 * A post-tokenize preprocessor that keep only tokens matching a pattern
+	 * @param pattern the pattern
+	 * @return the filter
+	 */
+	public static Function<Stream<String>,Stream<String>> getKeepPatternFilter(Pattern pattern){
+		return (tokens)->tokens.filter((token)->pattern.matcher(token).matches());
+	}
+	/**
+	 * A post-tokenize preprocessor that drop tokens matching a pattern
+	 * @param pattern the pattern
+	 * @return the filter
+	 */
+	public static Function<Stream<String>,Stream<String>> getDropPatternFilter(Pattern pattern){
+		return (tokens)->tokens.filter((token)->!pattern.matcher(token).matches());
+	}
+	/**
+	 * A post-tokenize preprocessor that drop tokens that are stop words
+	 * @param stopwords the words to be dropped
+	 * @return the filter
+	 */
+	public static Function<Stream<String>,Stream<String>> getStopWordsFilter(Collection<String> stopwords){
+		return (tokens)->tokens.filter((token)->!stopwords.contains(token));
+	}
+	/**
+	 * A post-tokenize preprocessor that keep only tokens that are specified words
+	 * @param protectedWords the words to be kept
+	 * @return the filter
+	 */
+	public static Function<Stream<String>,Stream<String>> getProtectedWordsFilter(Collection<String> protectedWords){
+		return (tokens)->tokens.filter((token)->protectedWords.contains(token));
+	}
+	/**
+	 * A post-tokenize preprocessor that transform tokens into upper case
 	 * @return the filter
 	 */
 	public static Function<Stream<String>,Stream<String>> getUpcaser(){
 		return getUpcaser(Locale.getDefault());
 	}
 	/**
-	 * A preprocessor that transform tokens into upper case
+	 * A post-tokenize preprocessor that transform tokens into upper case
 	 * @param locale the Locale
 	 * @return the filter
 	 */
@@ -102,14 +284,14 @@ public class TextPreprocessors{
 		return (tokens)->tokens.map((token)->token.toUpperCase(locale));
 	}
 	/**
-	 * A preprocessor that transform tokens into lower case
+	 * A post-tokenize preprocessor that transform tokens into lower case
 	 * @return the filter
 	 */
 	public static Function<Stream<String>,Stream<String>> getDowncaser(){
 		return getDowncaser(Locale.getDefault());
 	}
 	/**
-	 * A preprocessor that transform tokens into lower case
+	 * A post-tokenize preprocessor that transform tokens into lower case
 	 * @param locale the Locale
 	 * @return the filter
 	 */
@@ -117,7 +299,37 @@ public class TextPreprocessors{
 		return (tokens)->tokens.map((token)->token.toLowerCase(locale));
 	}
 	/**
-	 * A preprocessor that apply stemming to the tokens 
+	 * A post-tokenize preprocessor that fold case
+	 * icu4j is required
+	 * @return the filter
+	 */
+	public static Function<Stream<String>,Stream<String>> getFoldcaser(){
+		CaseMap.Fold fold=CaseMap.fold();
+		return (tokens)->tokens.map((token)->fold.apply(token));
+	}
+	/**
+	 * A post-tokenize preprocessor that replace pattern occurred in tokens
+	 * @param pattern to be replaced
+	 * @param replacement replacement, $ and \ have special meaning as specified in java.util.Matcher
+	 * @param firstOnly only replace the first occurence in each token
+	 * @return the filter
+	 */
+	public static Function<Stream<String>,Stream<String>> getReplacer(Pattern pattern,String replacement,boolean firstOnly){
+		if(firstOnly)
+			return (tokens)->tokens.map((token)->pattern.matcher(token).replaceFirst(replacement));
+		else
+			return (tokens)->tokens.map((token)->pattern.matcher(token).replaceAll(replacement));
+	}
+	/**
+	 * A post-tokenize preprocessor that map tokens
+	 * @param mapping the mapping
+	 * @return the filter
+	 */
+	public static Function<Stream<String>,Stream<String>> getMapper(Map<String,String> mapping){
+		return (tokens)->tokens.map((token)->mapping.getOrDefault(token,token));
+	}
+	/**
+	 * A post-tokenize preprocessor that apply stemming to the tokens 
 	 * @param locale identify the language
 	 * @return the stemmer
 	 */
@@ -149,35 +361,35 @@ public class TextPreprocessors{
 		return getSnowballStemmer(stemmer);
 	}
 	/**
-	 * A preprocessor that apply stemming to the tokens based on Porter's algorithm 
+	 * A post-tokenize preprocessor that apply stemming to the tokens based on Porter's algorithm 
 	 * @return the stemmer
 	 */
 	public static Function<Stream<String>,Stream<String>> getPorterStemmer(){
 		return getSnowballStemmer(new PorterStemmer());
 	}
 	/**
-	 * A preprocessor that apply stemming to the tokens based on Lovins' algorithm
+	 * A post-tokenize preprocessor that apply stemming to the tokens based on Lovins' algorithm
 	 * @return the stemmer
 	 */
 	public static Function<Stream<String>,Stream<String>> getLovinsStemmer(){
 		return getSnowballStemmer(new LovinsStemmer());
 	}
 	/**
-	 * A preprocessor that apply Dutch stemming to the tokens 
+	 * A post-tokenize preprocessor that apply Dutch stemming to the tokens 
 	 * @return the stemmer
 	 */
 	public static Function<Stream<String>,Stream<String>> getKraaijPohlmannStemmer(){
 		return getSnowballStemmer(new KraaijPohlmannStemmer());
 	}
 	/**
-	 * A preprocessor that apply German stemming to the tokens taking representation of umlaut by following e into account
+	 * A post-tokenize preprocessor that apply German stemming to the tokens taking representation of umlaut by following e into account
 	 * @return the stemmer
 	 */
 	public static Function<Stream<String>,Stream<String>> getAlternativeGermanStemmer(){
 		return getSnowballStemmer(new German2Stemmer());
 	}
 	/**
-	 * A preprocessor that apply stemmer to the tokens 
+	 * A post-tokenize preprocessor that apply stemmer to the tokens 
 	 * @param stemmer Snowball stemmer
 	 * @return the stemmer
 	 */
@@ -189,7 +401,7 @@ public class TextPreprocessors{
 		});
 	}
 	/**
-	 * A preprocessor that generate n-gram tokens
+	 * A post-tokenize preprocessor that generate n-gram tokens
 	 * @param n the number of tokens being combined into a token 
 	 * @return the n-gram generator
 	 */
@@ -255,5 +467,21 @@ public class TextPreprocessors{
 			}
 		}
 		return (tokens)->StreamSupport.stream(Spliterators.spliteratorUnknownSize(new NgramIterator(tokens.iterator(),n),0),false);
+	}
+	/**
+	 * A post-tokenize preprocessor that convert each token into its synonyms
+	 * @param synonyms the synonyms for each token
+	 * @return the filter
+	 */
+	public static Function<Stream<String>,Stream<String>> getSynonymGenerator(Map<String,Collection<String>> synonyms){
+		return getFlatFilter((token)->synonyms.getOrDefault(token,Collections.singletonList(token)).stream());
+	}
+	/**
+	 * A post-tokenize preprocessor that convert each token into zero or more tokens
+	 * @param transformer
+	 * @return the filter
+	 */
+	public static Function<Stream<String>,Stream<String>> getFlatFilter(Function<String,Stream<String>> transformer){
+		return (tokens)->tokens.flatMap((token)->transformer.apply(token));
 	}
 }

@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
@@ -28,23 +29,19 @@ import org.junit.*;
 public class SentenceTest{
 	@Test
 	public void testTfIdf() throws IOException{
-		ClassifierTest<String> tester=new ClassifierTest<>(()->fullDataStream(),()->fullDataStream());
-		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishTfIdfClassifierFactory())));
+		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishTfIdfClassifierFactory()));
 	}
 	@Test
 	public void testBayesian() throws IOException{
-		ClassifierTest<String> tester=new ClassifierTest<>(()->fullDataStream(),()->fullDataStream());
-		Logger.getGlobal().log(Level.INFO,"SENTENCE Bayesian: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>()))));
+		Logger.getGlobal().log(Level.INFO,"SENTENCE Bayesian: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>())));
 	}
 	@Test
 	public void testTfIdfOnWordList() throws IOException{
-		ClassifierTest<String> tester=new ClassifierTest<>(()->trainDataStream(),()->fullDataStream());
-		Logger.getGlobal().log(Level.INFO,"SENTENCE Word: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishClassifierFactory(new TfIdfClassifierFactory<String>().setTfIdfFormula(TfIdfClassifierFactory.THREHOLD)))));
+		Logger.getGlobal().log(Level.INFO,"SENTENCE Word: {0}",Validator.validate(trainDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new TfIdfClassifierFactory<String>().setTfIdfFormula(TfIdfClassifierFactory.THREHOLD))));
 	}
 	@Test
 	public void testBayesianOnWordList() throws IOException{
-		ClassifierTest<String> tester=new ClassifierTest<>(()->trainDataStream(),()->fullDataStream());
-		Logger.getGlobal().log(Level.INFO,"SENTENCE Bayesian Word: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>()))));
+		Logger.getGlobal().log(Level.INFO,"SENTENCE Bayesian Word: {0}",Validator.validate(trainDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>())));
 	}
 	public Stream<Sample<String>> fullDataStream(){
 		try{

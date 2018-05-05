@@ -59,4 +59,15 @@ public class Frequencies<T>{
 	public Map<T,Counter> toMap(){
 		return frequency;
 	}
+	@Override
+	public boolean equals(Object obj){
+		return obj instanceof Frequencies&&Objects.equals(frequency,((Frequencies)obj).frequency);
+	}
+	@Override
+	public int hashCode(){
+		int hash=7;
+		hash=31*hash+Objects.hashCode(this.frequency);
+		return hash;
+	}
+	
 }

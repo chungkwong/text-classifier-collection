@@ -75,11 +75,10 @@ public class TfIdfClassifierFactory<T> implements TrainableClassifierFactory<Cla
 			this.tfIdfFormula=tfIdfFormula;
 		}
 		@Override
-		public Category classify(Stream<T> object){
+		public List<ClassificationResult> getCandidates(Stream<T> object,int max){
 			ImmutableFrequencies<T> document=new ImmutableFrequencies<>(object);
-			Optional<ScoredCategory> category=profiles.entrySet().stream().map((e)->new ScoredCategory(cosSquare(document,e.getValue()),e.getKey())).
-					max((a,b)->Double.compare(a.getScore(),b.getScore()));
-			return category.map((e)->e.getCategory()).orElse(null);
+			return profiles.entrySet().stream().map((e)->new ClassificationResult(cosSquare(document,e.getValue()),e.getKey())).
+					collect(Collectors.toList());
 		}
 		private double cosSquare(ImmutableFrequencies<T> document,ImmutableFrequencies<T> category){
 			ImmutableFrequencies<T> shorter, longer;

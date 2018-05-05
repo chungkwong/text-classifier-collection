@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
@@ -26,17 +27,13 @@ import org.junit.*;
  * @author kwong
  */
 public class YoutubeTest{
-	private final ClassifierTest<String> tester;
-	public YoutubeTest(){
-		tester=new ClassifierTest<>(()->fullDataStream(),()->fullDataStream());
-	}
 	@Test
 	public void testTfIdf() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"YOUTUBE TF-IDF: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishTfIdfClassifierFactory())));
+		Logger.getGlobal().log(Level.INFO,"YOUTUBE TF-IDF: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishTfIdfClassifierFactory()));
 	}
 	@Test
 	public void testBayesian() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"YOUTUBE Bayesian: {0}",ClassifierTest.toString(tester.test(ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>()))));
+		Logger.getGlobal().log(Level.INFO,"YOUTUBE Bayesian: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>())));
 	}
 	public Stream<Sample<String>> fullDataStream(){
 		try{

@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import java.util.*;
 import java.util.function.*;
 /**
  *
@@ -44,7 +45,7 @@ class PreprocessClassifier<T,S> implements Classifier<T>{
 		this.baseClassifier=baseClassifier;
 	}
 	@Override
-	public Category classify(T object){
-		return baseClassifier.classify(preprocessor.apply(object));
+	public List<ClassificationResult> getCandidates(T object,int max){
+		return baseClassifier.getCandidates(preprocessor.apply(object),max);
 	}
 }
