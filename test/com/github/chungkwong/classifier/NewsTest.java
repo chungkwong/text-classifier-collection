@@ -31,9 +31,10 @@ import org.junit.*;
 public class NewsTest{
 	@Test
 	public void testTfIdf() throws IOException{
-		TfIdfClassifierFactory<String> tfIdfClassifierFactory=new TfIdfClassifierFactory<>();
-		tfIdfClassifierFactory.getBase().loadModel(new File("data/THUCNews/stat"),(x)->x);
-		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",Validator.validate(Stream.empty(),fullDataStream(),ClassifierTest.getChineseClassifierFactory(tfIdfClassifierFactory)));
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> classifierFactory=ClassifierTest.getChineseClassifierFactory(new TfIdfClassifierFactory<>());
+		PreprocessModel<FrequenciesModel<String>,String,Stream<String>> model=classifierFactory.createModel();
+		model.getUnderlying().load(new File("data/THUCNews/stat"),(x)->x);
+		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",Validator.validate(fullDataStream(),classifierFactory.getClassifier(model)));
 	}
 	public Stream<Sample<String>> fullDataStream(){
 		try{

@@ -16,23 +16,48 @@
  */
 package com.github.chungkwong.classifier.validator;
 import com.github.chungkwong.classifier.Category;
-import com.github.chungkwong.classifier.Category;
+import java.util.*;
 /**
- *
+ * Sample data and its category
  * @author kwong
+ * @param <T> the type of the data
  */
 public class Sample<T>{
 	private final T data;
 	private final Category category;
+	/**
+	 * Create a sample
+	 * @param data the data
+	 * @param category the category
+	 */
 	public Sample(T data,Category category){
 		this.category=category;
 		this.data=data;
 	}
+	/**
+	 * @return the data
+	 */
 	public T getData(){
 		return data;
 	}
+	/**
+	 * @return the category
+	 */
 	public Category getCategory(){
 		return category;
+	}
+	@Override
+	public boolean equals(Object obj){
+		return obj instanceof Sample&&
+				Objects.equals(((Sample)obj).category,category)&&
+				Objects.equals(((Sample)obj).data,data);
+	}
+	@Override
+	public int hashCode(){
+		int hash=3;
+		hash=73*hash+Objects.hashCode(this.data);
+		hash=73*hash+Objects.hashCode(this.category);
+		return hash;
 	}
 	@Override
 	public String toString(){

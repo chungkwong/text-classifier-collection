@@ -15,22 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier.validator;
-import com.github.chungkwong.classifier.*;
-import java.util.*;
+import java.util.function.*;
 import java.util.stream.*;
 /**
- *
+ * Data set
  * @author kwong
  */
-public interface DataSet<T>{
-	Stream<Sample<T>> getTestSamples();
-	static <T> DataSet<T> of(Sample<T>... samples){
-		return ()->Arrays.stream(samples);
+public class DataSet<T>{
+	private final Supplier<Stream<Sample<T>>> sampleSupplier;
+	private final String name;
+	/**
+	 * Create a dataset
+	 * @param sampleSupplier to be used to generate samples
+	 * @param name the name
+	 */
+	public DataSet(Supplier<Stream<Sample<T>>> sampleSupplier,String name){
+		this.sampleSupplier=sampleSupplier;
+		this.name=name;
 	}
-	static <T> DataSet<T> of(Collection<Sample<T>> samples){
-		return ()->samples.stream();
+	/**
+	 * @return samples
+	 */
+	public Stream<Sample<T>> getSamples(){
+		return sampleSupplier.get();
 	}
-	static <T> DataSet<T> of(Map<Category,T> samples){
-		return ()->samples.entrySet().stream().map((e)->new Sample<>(e.getValue(),e.getKey()));
+	/**
+	 * @return the name of the dataset
+	 */
+	public String getName(){
+		return name;
 	}
 }

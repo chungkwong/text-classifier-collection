@@ -14,28 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.chungkwong.classifier.validator;
-import com.github.chungkwong.classifier.*;
-import java.util.function.*;
+package com.github.chungkwong.classifier;
+
 /**
- *
+ * The model for classifier factory that do not need a model 
  * @author kwong
+ * @param <T> the type of the objects to be classified
  */
-public class ClassifierFactoryBuilder<T>{
-	private final Supplier<TrainableClassifierFactory<Classifier<T>,T>> factorySupplier;
-	private final String name;
-	public ClassifierFactoryBuilder(Supplier<TrainableClassifierFactory<Classifier<T>,T>> factorySupplier,String name){
-		this.factorySupplier=factorySupplier;
-		this.name=name;
-	}
-	public TrainableClassifierFactory<Classifier<T>,T> getFactory(){
-		return factorySupplier.get();
-	}
-	public String getName(){
-		return name;
+public class PlaceholderModel<T> implements Trainable<T>{
+	/**
+	 * Create a placeholder model
+	 */
+	public PlaceholderModel(){
 	}
 	@Override
-	public String toString(){
-		return getName();
+	public void train(T data,Category category){
+		
 	}
 }

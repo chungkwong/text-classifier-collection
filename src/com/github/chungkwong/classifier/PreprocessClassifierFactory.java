@@ -18,34 +18,46 @@ package com.github.chungkwong.classifier;
 import java.util.*;
 import java.util.function.*;
 /**
- *
+ * A factory that build classifier which first preprocess data and then apply another classifier 
  * @author kwong
+ * @param <M> the type of the model
+ * @param <T> the type of the objects to be classified
+ * @param <S> the type of the objects after preprocessing
  */
-public class PreprocessClassifierFactory<C extends Classifier<T>,T,S> implements TrainableClassifierFactory<Classifier<T>,T>{
+public class PreprocessClassifierFactory<M extends Trainable<S>,T,S> implements ClassifierFactory<Classifier<T>,PreprocessModel<M,T,S>,T>{
 	private final Function<T,S> preprocessor;
-	private final TrainableClassifierFactory<Classifier<S>,S> baseFactory;
-	public PreprocessClassifierFactory(Function<T,S> preprocessor,TrainableClassifierFactory<Classifier<S>,S> baseFactory){
+	private final ClassifierFactory<? extends Classifier<S>,M,S> baseFactory;
+	/**
+	 * Create a factory
+	 * @param preprocessor the preprocessors
+	 * @param baseFactory the based factory
+	 */
+	public PreprocessClassifierFactory(Function<T,S> preprocessor,ClassifierFactory<? extends Classifier<S>,M,S> baseFactory){
 		this.preprocessor=preprocessor;
 		this.baseFactory=baseFactory;
 	}
 	@Override
-	public void train(T data,Category category){
-		baseFactory.train(preprocessor.apply(data),category);
+	public Classifier<T> getClassifier(PreprocessModel<M,T,S> model){
+		return new PreprocessClassifier(preprocessor,baseFactory.getClassifier(model.getUnderlying()));
 	}
 	@Override
-	public Classifier<T> getClassifier(){
-		return new PreprocessClassifier(preprocessor,baseFactory.getClassifier());
-	}
-}
-class PreprocessClassifier<T,S> implements Classifier<T>{
-	private final Function<T,S> preprocessor;
-	private final Classifier<S> baseClassifier;
-	public PreprocessClassifier(Function<T,S> preprocessor,Classifier<S> baseClassifier){
-		this.preprocessor=preprocessor;
-		this.baseClassifier=baseClassifier;
+	public PreprocessModel<M,T,S> createModel(){
+		return new PreprocessModel<>(baseFactory.createModel(),preprocessor);
 	}
 	@Override
-	public List<ClassificationResult> getCandidates(T object,int max){
-		return baseClassifier.getCandidates(preprocessor.apply(object),max);
+	public String toString(){
+		return "preprocessed "+baseFactory.toString();
+	}
+	private static class PreprocessClassifier<T,S> implements Classifier<T>{
+		private final Function<T,S> preprocessor;
+		private final Classifier<S> baseClassifier;
+		public PreprocessClassifier(Function<T,S> preprocessor,Classifier<S> baseClassifier){
+			this.preprocessor=preprocessor;
+			this.baseClassifier=baseClassifier;
+		}
+		@Override
+		public List<ClassificationResult> getCandidates(T object,int max){
+			return baseClassifier.getCandidates(preprocessor.apply(object),max);
+		}
 	}
 }

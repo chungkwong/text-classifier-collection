@@ -16,22 +16,39 @@
  */
 package com.github.chungkwong.classifier.util;
 /**
- *
+ * Counter, i.e. mutable long integer
  * @author kwong
  */
 public class Counter{
 	private long count;
+	/**
+	 * Create a counter with initial value 0
+	 */
 	public Counter(){
 	}
+	/**
+	 * Create a counter
+	 * @param count initial value
+	 */
 	public Counter(long count){
 		this.count=count;
 	}
+	/**
+	 * @return current value of the counter
+	 */
 	public long getCount(){
 		return count;
 	}
+	/**
+	 * Advance the current value by one
+	 */
 	public void advance(){
 		++count;
 	}
+	/**
+	 * Add given value to the current value of the counter
+	 * @param times to be added
+	 */
 	public void advance(long times){
 		count+=times;
 	}

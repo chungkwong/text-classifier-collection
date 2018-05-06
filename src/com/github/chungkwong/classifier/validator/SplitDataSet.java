@@ -18,24 +18,39 @@ package com.github.chungkwong.classifier.validator;
 import java.util.function.*;
 import java.util.stream.*;
 /**
- *
+ * Dataset split into train set and test set
  * @author kwong
  */
-public class SplitDataset<T>{
+public class SplitDataSet<T>{
 	private final Supplier<Stream<Sample<T>>> trainSampleSupplier;
 	private final Supplier<Stream<Sample<T>>> testSampleSupplier;
 	private final String name;
-	public SplitDataset(Supplier<Stream<Sample<T>>> trainSampleSupplier,Supplier<Stream<Sample<T>>> testSampleSupplier,String name){
+	/**
+	 * Create a dataset
+	 * @param trainSampleSupplier to be used to generate train samples
+	 * @param testSampleSupplier to be used to generate test samples
+	 * @param name the name
+	 */
+	public SplitDataSet(Supplier<Stream<Sample<T>>> trainSampleSupplier,Supplier<Stream<Sample<T>>> testSampleSupplier,String name){
 		this.trainSampleSupplier=trainSampleSupplier;
 		this.testSampleSupplier=testSampleSupplier;
 		this.name=name;
-	}	
+	}
+	/**
+	 * @return train samples
+	 */
 	public Stream<Sample<T>> getTrainSamples(){
 		return trainSampleSupplier.get();
 	}
+	/**
+	 * @return test samples
+	 */
 	public Stream<Sample<T>> getTestSamples(){
 		return testSampleSupplier.get();
 	}
+	/**
+	 * @return the name of the dataset
+	 */
 	public String getName(){
 		return name;
 	}
@@ -43,5 +58,4 @@ public class SplitDataset<T>{
 	public String toString(){
 		return getName();
 	}
-	
 }

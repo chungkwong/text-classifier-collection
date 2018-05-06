@@ -19,25 +19,21 @@ import com.github.chungkwong.classifier.util.*;
 import java.util.*;
 import java.util.stream.*;
 /**
- *
+ * Factory for Bayesian classifier
  * @author kwong
+ * @param <T> the type of the objects to be classified
  */
-public class BayesianClassifierFactory<T> implements TrainableClassifierFactory<Classifier<Stream<T>>,Stream<T>>{
-	private final FrequencyClassifierFactory<Classifier<Stream<T>>,T> base;
+public class BayesianClassifierFactory<T> implements ClassifierFactory<Classifier<Stream<T>>,FrequenciesModel<T>,Stream<T>>{
 	public BayesianClassifierFactory(){
-		base=new FrequencyClassifierFactory<>((profiles)->new BayesianClassifierFactory.BayesianClassifier<>(
-				getBase().getImmutableProfiles(),getBase().getSampleCounts(),getBase().getTokenCounts(),getBase().getTotalTokenFrequencies()));
 	}
 	@Override
-	public void train(Stream<T> data,Category category){
-		base.train(data,category);
+	public Classifier<Stream<T>> getClassifier(FrequenciesModel<T> model){
+		return new BayesianClassifier<>(model.getTokenFrequencies(),
+				model.getSampleCounts(),model.getTokenCounts(),model.getTotalTokenFrequencies());
 	}
 	@Override
-	public Classifier<Stream<T>> getClassifier(){
-		return base.getClassifier();
-	}
-	public FrequencyClassifierFactory<Classifier<Stream<T>>,T> getBase(){
-		return base;
+	public FrequenciesModel<T> createModel(){
+		return new FrequenciesModel<>();
 	}
 	private static class BayesianClassifier<T> implements Classifier<Stream<T>>{
 		private final Map<Category,ImmutableFrequencies<T>> profiles;
@@ -91,5 +87,9 @@ public class BayesianClassifierFactory<T> implements TrainableClassifierFactory<
 			long frequency=tokenFrequencies.getFrequency(token);
 			return frequency!=0?((double)frequency)/tokenCount:1.0/tokenFrequencies.getTokenCount();
 		}
+	}
+	@Override
+	public String toString(){
+		return "Bayesian";
 	}
 }

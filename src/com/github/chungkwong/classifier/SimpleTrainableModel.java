@@ -18,18 +18,23 @@ package com.github.chungkwong.classifier;
 import java.util.*;
 import java.util.function.*;
 /**
- *
+ * Trainable model that only rely on profile about each category
  * @author kwong
+ * @param <T> the type of the object that the model will be used to classify
+ * @param <P> the type of the profile about each category
  */
-public class SimpleClassifierFactory<C extends Classifier<T>,T,P> implements TrainableClassifierFactory<C,T>{
+public class SimpleTrainableModel<T,P> implements Trainable<T>{
 	private final Map<Category,P> profiles=new HashMap<>();
 	private final Supplier<P> profileBuilder;
 	private final BiConsumer<T,P> profileUpdater;
-	private final Function<Map<Category,P>,C> classifierBuilder;
-	public SimpleClassifierFactory(Supplier<P> profileBuilder,BiConsumer<T,P> profileUpdater,Function<Map<Category,P>,C> classifierBuilder){
+	/**
+	 * Create a simple trainable model
+	 * @param profileBuilder being used to create a profile for a category
+	 * @param profileUpdater being called to update profile according to training data
+	 */
+	public SimpleTrainableModel(Supplier<P> profileBuilder,BiConsumer<T,P> profileUpdater){
 		this.profileBuilder=profileBuilder;
 		this.profileUpdater=profileUpdater;
-		this.classifierBuilder=classifierBuilder;
 	}
 	@Override
 	public void train(T data,Category category){
@@ -40,10 +45,9 @@ public class SimpleClassifierFactory<C extends Classifier<T>,T,P> implements Tra
 		}
 		profileUpdater.accept(data,profile);
 	}
-	@Override
-	public C getClassifier(){
-		return classifierBuilder.apply(profiles);
-	}
+	/**
+	 * @return the profiles about each category
+	 */
 	public Map<Category,P> getProfiles(){
 		return profiles;
 	}

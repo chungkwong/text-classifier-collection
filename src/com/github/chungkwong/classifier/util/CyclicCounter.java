@@ -16,29 +16,62 @@
  */
 package com.github.chungkwong.classifier.util;
 /**
- *
+ * A modulus counter 
  * @author kwong
  */
 public class CyclicCounter{
 	private int count;
 	private final int cycle;
+	/**
+	 * Create a counter with initial value 0
+	 * @param cycle the modulus
+	 */
 	public CyclicCounter(int cycle){
 		this.cycle=cycle;
 	}
-	public CyclicCounter(int count,int cycle){
-		this.count=count;
+	/**
+	 * Create a counter
+	 * @param cycle the modulus
+	 * @param count the initial value
+	 */
+	public CyclicCounter(int cycle,int count){
+		this.count=(count+cycle)%cycle;
 		this.cycle=cycle;
 	}
+	/**
+	 * Advance the current value by one
+	 */
 	public void advance(){
 		++count;
 		if(count==cycle){
 			count=0;
 		}
 	}
+	/**
+	 * @return current value of the counter
+	 */
 	public int getCount(){
 		return count;
 	}
+	/**
+	 * @return the modulus
+	 */
 	public int getCycle(){
 		return cycle;
+	}
+	@Override
+	public boolean equals(Object obj){
+		return obj instanceof CyclicCounter&&((CyclicCounter)obj).count==count&&((CyclicCounter)obj).cycle==cycle;
+	}
+	@Override
+	public int hashCode(){
+		int hash=7;
+		hash=23*hash+this.count;
+		hash=23*hash+this.cycle;
+		return hash;
+	}
+	@Override
+	public String toString(){
+		return Long.toString(count);
 	}
 }

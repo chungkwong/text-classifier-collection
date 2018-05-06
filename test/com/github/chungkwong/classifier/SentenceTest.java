@@ -28,12 +28,15 @@ import org.junit.*;
  */
 public class SentenceTest{
 	@Test
-	public void testTfIdf() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishTfIdfClassifierFactory()));
-	}
-	@Test
-	public void testBayesian() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SENTENCE Bayesian: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>())));
+	public void testTfIdf() throws IOException{		Validator<String> validator=new Validator<>();
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory1=ClassifierTest.getEnglishTfIdfClassifierFactory();
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory2=ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>());
+		DataSet<String> dataset=new DataSet<>(()->fullDataStream(),"Sentence");
+		validator.validate(new SplitDataSet[]{DataDivider.randomSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
+		validator.validate(new SplitDataSet[]{DataDivider.sequentialSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
+		validator.validate(new SplitDataSet[]{DataDivider.noSplit(dataset)},new ClassifierFactory[]{factory1,factory2});
+		Logger.getGlobal().log(Level.INFO,validator.toString());
+		Logger.getGlobal().log(Level.INFO,validator.selectMostAccurate().toString());
 	}
 	@Test
 	public void testTfIdfOnWordList() throws IOException{
@@ -46,15 +49,7 @@ public class SentenceTest{
 	public Stream<Sample<String>> fullDataStream(){
 		try{
 			return Files.list(new File("data/SentenceCorpus/SentenceCorpus/labeled_articles").toPath())
-					.flatMap((path)->{
-						try{
-							return Files.lines(path,StandardCharsets.UTF_8).filter((line)->!line.startsWith("#"));
-						}catch(IOException ex){
-							Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
-							return Stream.empty();
-						}
-					})
-					.map((line)->parseLine(line));
+					.flatMap((path)->TextDatasetHelper.labeledLines(path));
 		}catch(IOException ex){
 			Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
 			return Stream.empty();
@@ -70,8 +65,5 @@ public class SentenceTest{
 			Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
 			return Stream.empty();
 		}
-	}
-	public Sample<String> parseLine(String line){
-		return new Sample<>(line.substring(5),new Category(line.substring(0,4)));
 	}
 }

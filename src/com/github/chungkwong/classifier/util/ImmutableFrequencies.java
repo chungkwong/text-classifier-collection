@@ -18,30 +18,68 @@ package com.github.chungkwong.classifier.util;
 import java.util.*;
 import java.util.stream.*;
 /**
- *
+ * Records of frequency of different objects that do not tends to change
  * @author kwong
- * @param <T> token type
+ * @param <T> the type of the objects to be recorded
  */
 public class ImmutableFrequencies<T>{
 	private final Map<T,Long> frequency;
+	/**
+	 * Create a frequencies table
+	 * @param frequency the source
+	 */
 	public ImmutableFrequencies(Map<T,Long> frequency){
 		this.frequency=frequency;
 	}
+	/**
+	 * Create a frequencies table
+	 * @param frequency the source
+	 */
 	public ImmutableFrequencies(Frequencies<T> frequency){
 		this.frequency=frequency.toMap().entrySet().stream().collect(
 				Collectors.toMap((e)->e.getKey(),(e)->e.getValue().getCount()));
 	}
+	/**
+	 * Create a frequencies table
+	 * @param tokens the objects to be recorded
+	 */
 	public ImmutableFrequencies(Stream<T> tokens){
 		this.frequency=tokens.collect(
 				Collectors.groupingBy((e)->e,Collectors.counting()));
 	}
+	/**
+	 * Get the frequency of a object
+	 * @param token the object
+	 * @return the frequency
+	 */
 	public long getFrequency(T token){
 		return frequency.getOrDefault(token,0L);
 	}
+	/**
+	 * @return the number of unique objects found
+	 */
 	public int getTokenCount(){
 		return frequency.size();
 	}
+	/**
+	 * Map representation of the table
+	 * @return the map
+	 */
 	public Map<T,Long> toMap(){
 		return frequency;
+	}
+	@Override
+	public boolean equals(Object obj){
+		return obj instanceof ImmutableFrequencies&&Objects.equals(frequency,((ImmutableFrequencies)obj).frequency);
+	}
+	@Override
+	public int hashCode(){
+		int hash=7;
+		hash=31*hash+Objects.hashCode(this.frequency);
+		return hash;
+	}
+	@Override
+	public String toString(){
+		return frequency.toString();
 	}
 }

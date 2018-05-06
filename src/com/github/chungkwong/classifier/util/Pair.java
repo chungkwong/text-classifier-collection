@@ -17,19 +17,32 @@
 package com.github.chungkwong.classifier.util;
 import java.util.*;
 /**
- *
+ * Pair of object
  * @author kwong
+ * @param <K> the type of the first object
+ * @param <V> the type of the last object
  */
 public class Pair<K,V>{
 	private final K key;
 	private final V value;
+	/**
+	 * Create a pair
+	 * @param key the first object
+	 * @param value the last object
+	 */
 	public Pair(K key,V value){
 		this.key=key;
 		this.value=value;
 	}
+	/**
+	 * @return the first object
+	 */
 	public K getKey(){
 		return key;
 	}
+	/**
+	 * @return the last object
+	 */
 	public V getValue(){
 		return value;
 	}

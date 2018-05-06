@@ -22,21 +22,21 @@ import java.util.stream.*;
  *
  * @author kwong
  */
-public class ClassifierTest<T>{
-	public static TrainableClassifierFactory<Classifier<String>,String> getEnglishTfIdfClassifierFactory(){
-		return getEnglishClassifierFactory(new TfIdfClassifierFactory<>());
+public class ClassifierTest{
+	public static PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> getEnglishTfIdfClassifierFactory(){
+		return getEnglishClassifierFactory(new TfIdfClassifierFactory<String>());
 	}
-	public static TrainableClassifierFactory<Classifier<String>,String> getEnglishClassifierFactory(TrainableClassifierFactory<Classifier<Stream<String>>,Stream<String>> base){
-		PreprocessClassifierFactory<Classifier<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
+	public static <M extends Trainable<Stream<String>>> PreprocessClassifierFactory<M,String,Stream<String>> getEnglishClassifierFactory(ClassifierFactory<Classifier<Stream<String>>,M,Stream<String>> base){
+		PreprocessClassifierFactory<M,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
 				TextPreprocessors.of(TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)),TextPreprocessors.getWhitespaceFilter().andThen(TextPreprocessors.getDowncaser())),
 				base);
 		return classifierFactory;
 	}
-	public static TrainableClassifierFactory<Classifier<String>,String> getChineseTfIdfClassifierFactory(){
+	public static PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> getChineseTfIdfClassifierFactory(){
 		return getChineseClassifierFactory(new TfIdfClassifierFactory<>());
 	}
-	public static TrainableClassifierFactory<Classifier<String>,String> getChineseClassifierFactory(TrainableClassifierFactory<Classifier<Stream<String>>,Stream<String>> base){
-		PreprocessClassifierFactory<Classifier<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
+	public static <M extends Trainable<Stream<String>>> PreprocessClassifierFactory<M,String,Stream<String>> getChineseClassifierFactory(ClassifierFactory<Classifier<Stream<String>>,M,Stream<String>> base){
+		PreprocessClassifierFactory<M,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
 				TextPreprocessors.of(TextPreprocessors.getJavaTokenizer(BreakIterator.getCharacterInstance(Locale.CHINESE)),TextPreprocessors.getWhitespaceFilter().andThen(TextPreprocessors.getNgramGenerator(2))),
 				base);
 		return classifierFactory;

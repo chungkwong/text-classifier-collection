@@ -25,29 +25,66 @@ import java.util.*;
 public class ConfusionMatrix{
 	private final Frequencies<Pair<Category,Category>> matrix;
 	private long testTime;
+	/**
+	 * Create a confusion matrix
+	 */
 	public ConfusionMatrix(){
 		this.matrix=new Frequencies<>(true);
 	}
-	void advanceFrequency(Category real,Category classified){
+	/**
+	 * Advance a cell in the matrix by one
+	 * @param real the actual category of a sample
+	 * @param classified the classified category of a sample
+	 */
+	public void advanceFrequency(Category real,Category classified){
 		matrix.advanceFrequency(new Pair<>(real,classified));
 	}
-	void advanceFrequency(Category real,Category classified,long times){
+	/**
+	 * Advance a cell in the matrix by a given value
+	 * @param real the actual category of a sample
+	 * @param classified the classified category of a sample
+	 * @param times to be added
+	 */
+	public void advanceFrequency(Category real,Category classified,long times){
 		matrix.advanceFrequency(new Pair<>(real,classified),times);
 	}
-	public void getFrequency(Category real,Category classified){
-		matrix.getFrequency(new Pair<>(real,classified));
+	/**
+	 * @param real the actual category of a sample
+	 * @param classified the classified category of a sample
+	 * @return the number of samples in a category being classified into another category
+	 */
+	public long getFrequency(Category real,Category classified){
+		return matrix.getFrequency(new Pair<>(real,classified));
 	}
-	void setTestTime(long testTime){
+	/**
+	 * Advance total time(millisecond) used for test
+	 * @param times to be added
+	 */
+	public void advanceTestTime(long testTime){
 		this.testTime=testTime;
 	}
+	/**
+	 * @return total time being used for test
+	 */
 	public long getTestTime(){
 		return testTime;
 	}
+	/**
+	 * The F1 measure for a category
+	 * @param category the category
+	 * @return 2*recall*precision/(recall+precision)
+	 */
 	public double getF1Measure(Category category){
 		double recall=getRecall(category);
 		double precision=getPrecision(category);
 		return 2*recall*precision/(recall+precision);
 	}
+	/**
+	 * The recall rate for a category
+	 * @param category the category
+	 * @return the number of test samples correctly classified into the category
+	 * divided by the number of samples in the category
+	 */
 	public double getRecall(Category category){
 		Counter total=new Counter();
 		matrix.toMap().forEach((k,v)->{
@@ -56,6 +93,12 @@ public class ConfusionMatrix{
 		});
 		return (matrix.getFrequency(new Pair<>(category,category))+0.0)/total.getCount();
 	}
+	/**
+	 * The precision rate for a category
+	 * @param category the category
+	 * @return the number of test samples correctly classified into the category
+	 * divided by the number of samples classified into the category
+	 */
 	public double getPrecision(Category category){
 		Counter total=new Counter();
 		matrix.toMap().forEach((k,v)->{
@@ -64,6 +107,9 @@ public class ConfusionMatrix{
 		});
 		return (matrix.getFrequency(new Pair<>(category,category))+0.0)/total.getCount();
 	}
+	/**
+	 * @return the number of test samples correctly classified divided by the number of samples
+	 */
 	public double getAccuracy(){
 		Counter accurate=new Counter();
 		Counter total=new Counter();
@@ -74,6 +120,9 @@ public class ConfusionMatrix{
 		});
 		return (accurate.getCount()+0.0)/total.getCount();
 	}
+	/**
+	 * @return the number of test samples
+	 */
 	public long getTestSampleCount(){
 		Counter total=new Counter();
 		matrix.toMap().forEach((k,v)->{
@@ -81,6 +130,9 @@ public class ConfusionMatrix{
 		});
 		return total.getCount();
 	}
+	/**
+	 * @return Set of categories appeared in the matrix
+	 */
 	public Set<Category> getCategories(){
 		HashSet<Category> categories=new HashSet<>();
 		matrix.toMap().forEach((k,v)->{

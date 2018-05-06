@@ -17,17 +17,29 @@
 package com.github.chungkwong.classifier.util;
 import java.util.*;
 /**
- *
+ * Records of frequency of different objects
  * @author kwong
+ * @param <T> the type of the objects to be recorded
  */
 public class Frequencies<T>{
 	private final Map<T,Counter> frequency;
+	/**
+	 * Create a frequencies table backed by TreeMap
+	 */
 	public Frequencies(){
 		frequency=new TreeMap<>();
 	}
+	/**
+	 * Create a frequencies table
+	 * @param useHashMap if true, the table is backed by HashMap
+	 */
 	public Frequencies(boolean useHashMap){
 		frequency=useHashMap?new HashMap<>():new TreeMap<>();
 	}
+	/**
+	 * Increase the frequency of a given object by one
+	 * @param token the given object
+	 */
 	public void advanceFrequency(T token){
 		Counter counter=frequency.get(token);
 		if(counter==null){
@@ -37,6 +49,11 @@ public class Frequencies<T>{
 			counter.advance();
 		}
 	}
+	/**
+	 * Increase the frequency of a given object by a given value
+	 * @param token the given object
+	 * @param times the given value
+	 */
 	public void advanceFrequency(T token,long times){
 		Counter counter=frequency.get(token);
 		if(counter==null){
@@ -46,16 +63,39 @@ public class Frequencies<T>{
 			counter.advance(times);
 		}
 	}
+	/**
+	 * Merge frequencies into this table
+	 * @param toMerge the source
+	 */
 	public void merge(Frequencies<T> toMerge){
 		toMerge.frequency.forEach((k,v)->advanceFrequency(k,v.getCount()));
 	}
+	/**
+	 * Set the frequency of a object to zero
+	 * @param token the object
+	 */
+	public void reset(T token){
+		frequency.remove(token);
+	}
+	/**
+	 * Get the frequency of a object
+	 * @param token the object
+	 * @return the frequency
+	 */
 	public long getFrequency(T token){
 		Counter counter=frequency.get(token);
 		return counter==null?0:counter.getCount();
 	}
+	/**
+	 * @return the number of unique objects found
+	 */
 	public int getTokenCount(){
 		return frequency.size();
 	}
+	/**
+	 * Map representation of the table
+	 * @return the map
+	 */
 	public Map<T,Counter> toMap(){
 		return frequency;
 	}
@@ -69,5 +109,8 @@ public class Frequencies<T>{
 		hash=31*hash+Objects.hashCode(this.frequency);
 		return hash;
 	}
-	
+	@Override
+	public String toString(){
+		return frequency.toString();
+	}
 }

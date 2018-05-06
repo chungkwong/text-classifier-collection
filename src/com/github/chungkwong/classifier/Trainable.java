@@ -15,12 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+
 /**
- *
+ * Model that can be trained
  * @author kwong
- * @param <C> the type of classifier that the factory build
- * @param <T> the type of data to be classified
+ * @param <T> the type of the object that the model will be used to classify
  */
-public interface TrainableClassifierFactory<C extends Classifier<T>,T> extends ClassifierFactory<C,T>{
+public interface Trainable<T>{
+	/**
+	 * Train the model
+	 * @param data the data
+	 * @param category the category of the data
+	 */
 	void train(T data,Category category);
 }

@@ -17,7 +17,6 @@
 package com.github.chungkwong.classifier;
 import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
-import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.logging.*;
 import java.util.stream.*;
@@ -28,25 +27,21 @@ import org.junit.*;
  */
 public class YoutubeTest{
 	@Test
-	public void testTfIdf() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"YOUTUBE TF-IDF: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishTfIdfClassifierFactory()));
-	}
-	@Test
-	public void testBayesian() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"YOUTUBE Bayesian: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>())));
+	public void test() throws IOException{
+		Validator<String> validator=new Validator<>();
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory1=ClassifierTest.getEnglishTfIdfClassifierFactory();
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory2=ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>());
+		DataSet<String> dataset=new DataSet<>(()->fullDataStream(),"Youtube");
+		validator.validate(new SplitDataSet[]{DataDivider.randomSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
+		validator.validate(new SplitDataSet[]{DataDivider.sequentialSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
+		validator.validate(new SplitDataSet[]{DataDivider.noSplit(dataset)},new ClassifierFactory[]{factory1,factory2});
+		Logger.getGlobal().log(Level.INFO,validator.toString());
+		Logger.getGlobal().log(Level.INFO,validator.selectMostAccurate().toString());
 	}
 	public Stream<Sample<String>> fullDataStream(){
 		try{
 			return Files.list(new File("data/YouTube-Spam-Collection-v1").toPath())
-					.flatMap((path)->{
-						try{
-							return CSVParser.parse(Files.lines(path,StandardCharsets.UTF_8));
-						}catch(IOException ex){
-							Logger.getLogger(SentenceTest.class.getName()).log(Level.SEVERE,null,ex);
-							return Stream.empty();
-						}
-					})
-					.map((line)->new Sample<>(line.get(3),new Category(line.get(4))));
+					.flatMap((path)->TextDatasetHelper.csvRecord(path,3,4));
 		}catch(IOException ex){
 			Logger.getLogger(YoutubeTest.class.getName()).log(Level.SEVERE,null,ex);
 			return Stream.empty();

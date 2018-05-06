@@ -15,23 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import java.io.*;
+import java.util.function.*;
 /**
- * Factory for Classifier
+ * Model that can be saved to and loaded from file system
  * @author kwong
- * @param <C> the type of classifier that the factory build
- * @param <M> the type of model
- * @param <T> the type of data to be classified
+ * @param <T> the type that is needed to convert to string while saving the model 
  */
-public interface ClassifierFactory<C extends Classifier<T>,M extends Trainable<T>,T>{
+public interface Persistable<T>{
 	/**
-	 * Get a classifier
-	 * @param model the model
-	 * @return the classifier
+	 * Save the model to filesystem
+	 * @param directory where the model will be saved to
+	 * @param encoder encode token to String without tab and new line
 	 */
-	C getClassifier(M model);
+	void save(File directory,Function<T,String> encoder);
 	/**
-	 * Create a new model for use with this factory
-	 * @return the new model
+	 * Load the model from filesystem
+	 * @param directory where the model is saved to
+	 * @param decoder decode String to token
 	 */
-	M createModel();
+	void load(File directory,Function<String,T> decoder);
 }

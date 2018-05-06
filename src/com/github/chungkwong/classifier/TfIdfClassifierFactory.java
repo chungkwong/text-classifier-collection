@@ -19,46 +19,72 @@ import com.github.chungkwong.classifier.util.*;
 import java.util.*;
 import java.util.stream.*;
 /**
- *
+ * 
+ * Factory for TF-IDF classifier
  * @author kwong
  */
-public class TfIdfClassifierFactory<T> implements TrainableClassifierFactory<Classifier<Stream<T>>,Stream<T>>{
+public class TfIdfClassifierFactory<T> implements ClassifierFactory<Classifier<Stream<T>>,FrequenciesModel<T>,Stream<T>>{
+	/**
+	 * Standard TF-IDF formula
+	 */
 	public static final TfIdfFormula STANDARD=((freq,docFreq,docCount)->{
 		return freq==0?0:(1+Math.log(freq))*Math.log(1+((double)docCount)/docFreq);
 	});
+	/**
+	 * Use token frequency as TF-IDF
+	 */
 	public static final TfIdfFormula FREQUENCY=((freq,docFreq,docCount)->{
 		return freq;
 	});
+	/**
+	 * Use token occurence as TF-IDF
+	 */
 	public static final TfIdfFormula THREHOLD=((freq,docFreq,docCount)->{
 		return freq==0?0:1;
 	});
-	private final FrequencyClassifierFactory<Classifier<Stream<T>>,T> base;
 	private TfIdfFormula tfIdfFormula;
+	/**
+	 * Create a factory with standard TF-IDF formula
+	 */
 	public TfIdfClassifierFactory(){
 		tfIdfFormula=STANDARD;
-		base=new FrequencyClassifierFactory<>((profiles)->new TfIdfClassifier<>(
-				getBase().getImmutableProfiles(),getBase().getTotalDocumentFrequencies(),getBase().getSampleCount(),getTfIdfFormula()));
 	}
+	/**
+	 * Set TF-IDF formula
+	 * @param tfIdfFormula TF-IDF formula
+	 * @return
+	 */
 	public TfIdfClassifierFactory<T> setTfIdfFormula(TfIdfFormula tfIdfFormula){
 		this.tfIdfFormula=tfIdfFormula;
 		return this;
 	}
+	/**
+	 * @return TF-IDF formula
+	 */
 	public TfIdfFormula getTfIdfFormula(){
 		return tfIdfFormula;
 	}
 	@Override
-	public void train(Stream<T> data,Category category){
-		base.train(data,category);
+	public Classifier<Stream<T>> getClassifier(FrequenciesModel<T> model){
+		return new TfIdfClassifier<>(model.getTokenFrequencies(),
+				model.getTotalDocumentFrequencies(),model.getSampleCount(),tfIdfFormula);
 	}
 	@Override
-	public Classifier<Stream<T>> getClassifier(){
-		return base.getClassifier();
+	public FrequenciesModel<T> createModel(){
+		return new FrequenciesModel<>();
 	}
-	public FrequencyClassifierFactory<Classifier<Stream<T>>,T> getBase(){
-		return base;
-	}
+	/**
+	 * TF-IDF formula
+	 */
 	@FunctionalInterface
 	public interface TfIdfFormula{
+		/**
+		 * Calcuate TF-IDF
+		 * @param freq token frequency
+		 * @param docFreq document frequency
+		 * @param docCount sample document count
+		 * @return TF-IDF
+		 */
 		double calculate(long freq,long docFreq,long docCount);
 	}
 	private static class TfIdfClassifier<T> implements Classifier<Stream<T>>{
@@ -102,5 +128,9 @@ public class TfIdfClassifierFactory<T> implements TrainableClassifierFactory<Cla
 			}
 			return product*product/(shortModSq*longModSq);
 		}
+	}
+	@Override
+	public String toString(){
+		return "TF-IDF";
 	}
 }

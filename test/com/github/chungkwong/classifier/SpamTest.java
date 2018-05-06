@@ -17,8 +17,6 @@
 package com.github.chungkwong.classifier;
 import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
-import java.nio.charset.*;
-import java.nio.file.*;
 import java.util.logging.*;
 import java.util.stream.*;
 import org.junit.*;
@@ -28,57 +26,15 @@ import org.junit.*;
  */
 public class SpamTest{
 	@Test
-	public void testTfIdfFull() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SPAM TF-IDF: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishTfIdfClassifierFactory()));
+	public void test() throws IOException{
+		Validator<String> validator=new Validator<>();
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory1=ClassifierTest.getEnglishTfIdfClassifierFactory();
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory2=ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>());
+		DataSet<String> dataset=new DataSet<>(()->TextDatasetHelper.labeledLines(new File("data/smsspamcollection/SMSSpamCollection").toPath()),"Spam");
+		validator.validate(new SplitDataSet[]{DataDivider.randomSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
+		validator.validate(new SplitDataSet[]{DataDivider.sequentialSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
+		validator.validate(new SplitDataSet[]{DataDivider.noSplit(dataset)},new ClassifierFactory[]{factory1,factory2});
+		Logger.getGlobal().log(Level.INFO,validator.toString());
+		Logger.getGlobal().log(Level.INFO,validator.selectMostAccurate().toString());
 	}
-	@Test
-	public void testBayesian() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SPAM Bayesian predict: {0}",Validator.validate(trainDataStream(),testDataStream(),ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>())));
-	}
-	@Test
-	public void testTfIdf() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SPAM TF-IDF predict: {0}",Validator.validate(trainDataStream(),testDataStream(),ClassifierTest.getEnglishTfIdfClassifierFactory()));
-	}
-	@Test
-	public void testBayesianFull() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SPAM Bayesian: {0}",Validator.validate(fullDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>())));
-	}
-	public Stream<Sample<String>> trainDataStream(){
-		try{
-			return Files.lines(new File("data/smsspamcollection/SMSSpamCollection.train").toPath(),StandardCharsets.UTF_8)
-					.map((line)->parseLine(line));
-		}catch(IOException ex){
-			Logger.getLogger(SpamTest.class.getName()).log(Level.SEVERE,null,ex);
-			return Stream.empty();
-		}
-	}
-	public Stream<Sample<String>> testDataStream(){
-		try{
-			return Files.lines(new File("data/smsspamcollection/SMSSpamCollection.test").toPath(),StandardCharsets.UTF_8)
-					.map((line)->parseLine(line));
-		}catch(IOException ex){
-			Logger.getLogger(SpamTest.class.getName()).log(Level.SEVERE,null,ex);
-			return Stream.empty();
-		}
-	}
-	public Stream<Sample<String>> fullDataStream(){
-		try{
-			return Files.lines(new File("data/smsspamcollection/SMSSpamCollection").toPath(),StandardCharsets.UTF_8)
-					.map((line)->parseLine(line));
-		}catch(IOException ex){
-			Logger.getLogger(SpamTest.class.getName()).log(Level.SEVERE,null,ex);
-			return Stream.empty();
-		}
-	}
-	public Sample<String> parseLine(String line){
-		if(line.startsWith("spam\t")){
-			return new Sample<>(line.substring(5),spam);
-		}else if(line.startsWith("ham\t")){
-			return new Sample<>(line.substring(4),ham);
-		}else{
-			throw new RuntimeException("Bad format:"+line);
-		}
-	}
-	private final Category ham=new Category("ham");
-	private final Category spam=new Category("spam");
 }
