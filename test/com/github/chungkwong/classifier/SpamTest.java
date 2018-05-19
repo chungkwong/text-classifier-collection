@@ -30,10 +30,13 @@ public class SpamTest{
 		Validator<String> validator=new Validator<>();
 		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory1=ClassifierTest.getEnglishTfIdfClassifierFactory();
 		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory2=ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>());
+		PreprocessClassifierFactory<DocumentVectorsModel<String>,String,Stream<String>> factory3=ClassifierTest.getEnglishClassifierFactory(new NearestClassifierFactory<>());
+		PreprocessClassifierFactory<DocumentVectorsModel<String>,String,Stream<String>> factory4=ClassifierTest.getEnglishClassifierFactory(new SvmClassifierFactory<>());
 		DataSet<String> dataset=new DataSet<>(()->TextDatasetHelper.labeledLines(new File("data/smsspamcollection/SMSSpamCollection").toPath()),"Spam");
-		validator.validate(new SplitDataSet[]{DataDivider.randomSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
-		validator.validate(new SplitDataSet[]{DataDivider.sequentialSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
-		validator.validate(new SplitDataSet[]{DataDivider.noSplit(dataset)},new ClassifierFactory[]{factory1,factory2});
+		ClassifierFactory[] classifierFactories=new ClassifierFactory[]{factory1,factory2,factory4};
+		validator.validate(new SplitDataSet[]{DataDivider.randomSplit(dataset,0.7)},classifierFactories);
+		validator.validate(new SplitDataSet[]{DataDivider.sequentialSplit(dataset,0.7)},classifierFactories);
+		validator.validate(new SplitDataSet[]{DataDivider.noSplit(dataset)},classifierFactories);
 		Logger.getGlobal().log(Level.INFO,validator.toString());
 		Logger.getGlobal().log(Level.INFO,validator.selectMostAccurate().toString());
 	}

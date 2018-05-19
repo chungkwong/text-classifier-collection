@@ -37,9 +37,11 @@ public class Validator<T>{
 	 * @param factories
 	 */
 	public void validate(SplitDataSet<T>[] datasets,ClassifierFactory<? extends Classifier<T>,? extends Trainable<T>,T>[] factories){
-		for(int i=0;i<datasets.length;i++)
-			for(int j=0;j<factories.length;j++)
-				validate(datasets[i],factories[j]);
+		for(SplitDataSet<T> dataset:datasets){
+			for(ClassifierFactory<? extends Classifier<T>,? extends Trainable<T>,T> factory:factories){
+				validate(dataset,factory);
+			}
+		}
 	}
 	/**
 	 * @return Set of ClassifierFactory appeared in the matrix

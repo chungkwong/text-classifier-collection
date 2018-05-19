@@ -71,6 +71,13 @@ public class Frequencies<T>{
 		toMerge.frequency.forEach((k,v)->advanceFrequency(k,v.getCount()));
 	}
 	/**
+	 * Merge frequencies into this table
+	 * @param toMerge the source
+	 */
+	public void merge(ImmutableFrequencies<T> toMerge){
+		toMerge.toMap().forEach((k,v)->advanceFrequency(k,v));
+	}
+	/**
 	 * Set the frequency of a object to zero
 	 * @param token the object
 	 */

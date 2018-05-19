@@ -84,7 +84,7 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 	 * @param start lower bound(inclusive)
 	 * @param end upper bound(exclusive)
 	 */
-	public void keepFrequencyRange(int start,int end){
+	public void keepFrequencyRange(long start,long end){
 		Set<T> toKeep=getTotalTokenFrequencies().toMap().entrySet().stream().
 				filter((e)->e.getValue()>=start&&e.getValue()<end).
 				map((e)->e.getKey()).collect(Collectors.toSet());
@@ -107,13 +107,16 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 	 * @return the quantile
 	 */
 	public long[] getQuantile(double... q){
+		long[] acc=new long[q.length];
 		long[] quantile=new long[q.length];
 		Frequencies<Long> histogram=getTokenHistogram();
 		long total=histogram.toMap().values().stream().mapToLong((c)->c.getCount()).sum();
 		histogram.toMap().forEach((k,v)->{
 			for(int i=0;i<q.length;i++){
-				if(quantile[i]<total*q[i])
-					quantile[i]+=v.getCount();
+				if(acc[i]<total*q[i]){
+					acc[i]+=v.getCount();
+					quantile[i]=k;
+				}
 			}
 		});
 		return quantile;

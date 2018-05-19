@@ -24,30 +24,12 @@ import java.util.stream.*;
  * @author kwong
  */
 public class TfIdfClassifierFactory<T> implements ClassifierFactory<Classifier<Stream<T>>,FrequenciesModel<T>,Stream<T>>{
-	/**
-	 * Standard TF-IDF formula
-	 */
-	public static final TfIdfFormula STANDARD=((freq,docFreq,docCount)->{
-		return freq==0?0:(1+Math.log(freq))*Math.log(1+((double)docCount)/docFreq);
-	});
-	/**
-	 * Use token frequency as TF-IDF
-	 */
-	public static final TfIdfFormula FREQUENCY=((freq,docFreq,docCount)->{
-		return freq;
-	});
-	/**
-	 * Use token occurence as TF-IDF
-	 */
-	public static final TfIdfFormula THREHOLD=((freq,docFreq,docCount)->{
-		return freq==0?0:1;
-	});
 	private TfIdfFormula tfIdfFormula;
 	/**
 	 * Create a factory with standard TF-IDF formula
 	 */
 	public TfIdfClassifierFactory(){
-		tfIdfFormula=STANDARD;
+		tfIdfFormula=TfIdfFormula.STANDARD;
 	}
 	/**
 	 * Set TF-IDF formula
@@ -73,28 +55,15 @@ public class TfIdfClassifierFactory<T> implements ClassifierFactory<Classifier<S
 	public FrequenciesModel<T> createModel(){
 		return new FrequenciesModel<>();
 	}
-	/**
-	 * TF-IDF formula
-	 */
-	@FunctionalInterface
-	public interface TfIdfFormula{
-		/**
-		 * Calcuate TF-IDF
-		 * @param freq token frequency
-		 * @param docFreq document frequency
-		 * @param docCount sample document count
-		 * @return TF-IDF
-		 */
-		double calculate(long freq,long docFreq,long docCount);
-	}
+	
 	private static class TfIdfClassifier<T> implements Classifier<Stream<T>>{
 		private final Map<Category,ImmutableFrequencies<T>> profiles;
 		private final ImmutableFrequencies<T> documentFrequencies;
 		private final long documentCount;
-		private final TfIdfClassifierFactory.TfIdfFormula tfIdfFormula;
+		private final TfIdfFormula tfIdfFormula;
 		public TfIdfClassifier(Map<Category,ImmutableFrequencies<T>> profiles,
 				ImmutableFrequencies<T> documentFrequencies,long documentCount,
-				TfIdfClassifierFactory.TfIdfFormula tfIdfFormula){
+				TfIdfFormula tfIdfFormula){
 			this.profiles=profiles;
 			this.documentFrequencies=documentFrequencies;
 			this.documentCount=documentCount;

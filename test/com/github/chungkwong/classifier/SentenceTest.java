@@ -31,16 +31,19 @@ public class SentenceTest{
 	public void testTfIdf() throws IOException{		Validator<String> validator=new Validator<>();
 		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory1=ClassifierTest.getEnglishTfIdfClassifierFactory();
 		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> factory2=ClassifierTest.getEnglishClassifierFactory(new BayesianClassifierFactory<>());
+		PreprocessClassifierFactory<DocumentVectorsModel<String>,String,Stream<String>> factory3=ClassifierTest.getEnglishClassifierFactory(new NearestClassifierFactory<>());
+		PreprocessClassifierFactory<DocumentVectorsModel<String>,String,Stream<String>> factory4=ClassifierTest.getEnglishClassifierFactory(new SvmClassifierFactory<>());
 		DataSet<String> dataset=new DataSet<>(()->fullDataStream(),"Sentence");
-		validator.validate(new SplitDataSet[]{DataDivider.randomSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
-		validator.validate(new SplitDataSet[]{DataDivider.sequentialSplit(dataset,0.7)},new ClassifierFactory[]{factory1,factory2});
-		validator.validate(new SplitDataSet[]{DataDivider.noSplit(dataset)},new ClassifierFactory[]{factory1,factory2});
+		ClassifierFactory[] classifierFactories=new ClassifierFactory[]{factory1,factory2,factory4};
+		validator.validate(new SplitDataSet[]{DataDivider.randomSplit(dataset,0.7)},classifierFactories);
+		validator.validate(new SplitDataSet[]{DataDivider.sequentialSplit(dataset,0.7)},classifierFactories);
+		validator.validate(new SplitDataSet[]{DataDivider.noSplit(dataset)},classifierFactories);
 		Logger.getGlobal().log(Level.INFO,validator.toString());
 		Logger.getGlobal().log(Level.INFO,validator.selectMostAccurate().toString());
 	}
 	@Test
 	public void testTfIdfOnWordList() throws IOException{
-		Logger.getGlobal().log(Level.INFO,"SENTENCE Word: {0}",Validator.validate(trainDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new TfIdfClassifierFactory<String>().setTfIdfFormula(TfIdfClassifierFactory.THREHOLD))));
+		Logger.getGlobal().log(Level.INFO,"SENTENCE Word: {0}",Validator.validate(trainDataStream(),fullDataStream(),ClassifierTest.getEnglishClassifierFactory(new TfIdfClassifierFactory<String>().setTfIdfFormula(TfIdfFormula.THREHOLD))));
 	}
 	@Test
 	public void testBayesianOnWordList() throws IOException{

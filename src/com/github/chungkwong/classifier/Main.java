@@ -17,6 +17,7 @@
 package com.github.chungkwong.classifier;
 import java.io.*;
 import java.util.*;
+import java.util.function.*;
 import java.util.stream.*;
 /**
  *
@@ -32,5 +33,18 @@ public class Main{
 		System.out.println(TextPreprocessors.getStemmer(Locale.ENGLISH).apply(Stream.of("I","was","eating","balls","happily")).collect(Collectors.toList()));
 		System.out.println(TextPreprocessors.getIcuTransformer("Simplified-Traditional").apply("万里长城永不倒"));
 		System.out.println("hello".replaceFirst("([a-z])","$1$1"));
+		FrequenciesModel<String> frequenciesModel=new FrequenciesModel<>();
+		frequenciesModel.load(new File("/home/kwong/projects/text-classifier/data/THUCNews/stat"),Function.identity());
+		double[] q=new double[101];
+		for(int i=0;i<=100;i++){
+			q[i]=i*0.01;
+		}
+		long[] quantile=frequenciesModel.getQuantile(q);
+		for(int i=0;i<=100;i++){
+			System.out.println(i+":"+quantile[i]);
+		}
+		
+		frequenciesModel.keepFrequencyRange(quantile[98],quantile[100]+1);
+		frequenciesModel.save(new File("/home/kwong/projects/text-classifier/data/THUCNews/stat2"),Function.identity());
 	}
 }
