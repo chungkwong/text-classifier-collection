@@ -42,7 +42,6 @@ public abstract class StreamClassifierFactory<C extends Classifier<Stream<T>>,M 
 	}
 	@Override
 	public C getClassifier(M model){
-		System.err.println("tokens"+model.getTotalDocumentFrequencies().getTokenCount());
 		if(featureSelector!=null)
 			model.retainAll(featureSelector.select(model,this::createClassifier));
 		return createClassifier(model);

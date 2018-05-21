@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.chungkwong</groupId>
     <artifactId>text-classifier-collection</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
 	<name>text-classifier-collection</name>
 	<description>A full fledged text classification toolkit for Java</description>
@@ -39,6 +39,18 @@
 		<system>GitHub</system>
 		<url>https://github.com/chungkwong/text-classifier-collection/issues</url>
 	</issueManagement>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>nexus-snapshots</id>
+			<name>Nexus Snapshot Repo</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>nexus-releases</id>
+			<name>Nexus Staging Repo</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+	</distributionManagement>
     <dependencies>
         <dependency>
             <groupId>com.ibm.icu</groupId>
@@ -58,4 +70,45 @@
             <type>jar</type>
         </dependency>
     </dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>  
+				<executions>  
+					<execution>  
+						<id>attach-sources</id> 
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>  
+				</executions> 
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>  
+				<executions>  
+					<execution>  
+						<id>attach-javadoc</id>  
+						<goals>
+							<goal>jar</goal>
+						</goals> 
+					</execution>  
+				</executions> 
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

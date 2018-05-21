@@ -91,7 +91,4 @@ public class Starter{
 		//ClassifierFactory factory8=Starter.getDefaultClassifierFactory(locale,true,new SvmClassifierFactory());
 		return new ClassifierFactory[]{factory1,factory2,factory4};
 	}
-	public static void main(String[] args){
-		
-	}
 }
