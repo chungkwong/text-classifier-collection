@@ -32,6 +32,8 @@ public class Demo{
 		//创建朴素贝叶斯单词流分类器，对于其它分类器改为new SvmClassifierFactory()、
 		//new KNearestClassifierFactory().setK(k)或new TfIdfClassifierFactory()
 		BayesianClassifierFactory<String> baseClassifierFactory=new BayesianClassifierFactory<>();
+		//只用Tf-Idf最高的500个单词做分类
+		baseClassifierFactory.setFeatureSelector(new TfIdfFeatureSelector<>(500));
 		//创建对输入文本进行的转换，如这里是把繁体中文转换为简体中文
 		Function<String,String> preTokenize=TextPreprocessors.getIcuTransformer("Traditional-Simplified");
 		//创建分词器，这里是把每个字符当作一个单词

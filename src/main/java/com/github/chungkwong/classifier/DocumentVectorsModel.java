@@ -23,22 +23,18 @@ import java.util.stream.*;
  * @author kwong
  * @param <T> the type of tokens in the streams
  */
-public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,DocumentVectorsModel.VectorsProfile<T>>{
+public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,DocumentVectorsModel.VectorsProfile<T>> implements TokenFrequenciesModel<T>{
 	/**
 	 * Create a model
 	 */
 	public DocumentVectorsModel(){
 		super(()->new DocumentVectorsModel.VectorsProfile<>(),(data,profile)->profile.update(data));
 	}
-	/**
-	 * @return the number of samples trained
-	 */
+	@Override
 	public long getSampleCount(){
 		return getProfiles().values().stream().mapToLong((profile)->profile.getDocumentVectors().size()).sum();
 	}
-	/**
-	 * @return the frequencies table for each category
-	 */
+	@Override
 	public Map<Category,ImmutableFrequencies<T>> getTokenFrequencies(){
 		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),
 				(e)->{
@@ -47,78 +43,35 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,Docu
 					return new ImmutableFrequencies<>(tokenFrequenciesRaw);
 				}));
 	}
-	/**
-	 * @return the number of samples that contains each token 
-	 */
+	@Override
 	public ImmutableFrequencies<T> getTotalDocumentFrequencies(){
 		Frequencies<T> documentFrequenciesRaw=new Frequencies<>();
 		getProfiles().values().stream().flatMap((vectors)->vectors.getDocumentVectors().stream()).
 				flatMap((v)->v.toMap().keySet().stream()).forEach((t)->documentFrequenciesRaw.advanceFrequency(t));
 		return new ImmutableFrequencies<>(documentFrequenciesRaw);
 	}
-	/**
-	 * @return the frequency of each token in all samples 
-	 */
+	@Override
 	public ImmutableFrequencies<T> getTotalTokenFrequencies(){
 		Frequencies<T> tokenFrequenciesRaw=new Frequencies<>();
 		getProfiles().values().stream().flatMap((vectors)->vectors.getDocumentVectors().stream()).
 				forEach((v)->tokenFrequenciesRaw.merge(v));
 		return new ImmutableFrequencies<>(tokenFrequenciesRaw);
 	}
-	/**
-	 * @return the number of samples in each category
-	 */
+	@Override
 	public ImmutableFrequencies<Category> getSampleCounts(){
 		return new ImmutableFrequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->(long)e.getValue().getDocumentVectors().size())));
 	}
-	/**
-	 * @return the number of unique tokens in each category
-	 */
+	@Override
 	public ImmutableFrequencies<Category> getTokenCounts(){
 		return new ImmutableFrequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),
 				(e)->(long)e.getValue().getDocumentVectors().stream().flatMap((v)->v.toMap().keySet().stream()).distinct().count())));
 	}
-	/**
-	 * Retain only the tokens that have its total frequency within a range
-	 * @param start lower bound(inclusive)
-	 * @param end upper bound(exclusive)
-	 */
-	public void keepFrequencyRange(long start,long end){
-		Set<T> toKeep=getTotalTokenFrequencies().toMap().entrySet().stream().
-				filter((e)->e.getValue()>=start&&e.getValue()<end).
-				map((e)->e.getKey()).collect(Collectors.toSet());
+	@Override
+	public void retainAll(Set<T> toKeep){
 		getProfiles().forEach((k,v)->{
 			v.getDocumentVectors().forEach((vector)->vector.toMap().keySet().retainAll(toKeep));
 		});
-	}
-	/**
-	 * @return the histogram of tokens
-	 */
-	public Frequencies<Long> getTokenHistogram(){
-		Frequencies<Long> histogram=new Frequencies<>();
-		getTotalTokenFrequencies().toMap().forEach((k,v)->histogram.advanceFrequency(v));
-		return histogram;
-	}
-	/**
-	 * Get the quantile of token histogram
-	 * @param q the level
-	 * @return the quantile
-	 */
-	public long[] getQuantile(double... q){
-		long[] acc=new long[q.length];
-		long[] quantile=new long[q.length];
-		Frequencies<Long> histogram=getTokenHistogram();
-		long total=histogram.toMap().values().stream().mapToLong((c)->c.getCount()).sum();
-		histogram.toMap().forEach((k,v)->{
-			for(int i=0;i<q.length;i++){
-				if(acc[i]<total*q[i]){
-					acc[i]+=v.getCount();
-					quantile[i]=k;
-				}
-			}
-		});
-		return quantile;
-	}
+	}	
 	/**
 	 * Profile that records document vector
 	 * @param <T> the type of tokens

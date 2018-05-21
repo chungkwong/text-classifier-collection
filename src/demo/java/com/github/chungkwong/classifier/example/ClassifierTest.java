@@ -33,15 +33,10 @@ public class ClassifierTest{
 		Logger.getGlobal().log(Level.INFO,"Best: {0}",validator.selectMostAccurate().toString());
 	}
 	private static ClassifierFactory[] getStandardClassifierFactories(Locale locale){
-		ClassifierFactory factory1=Starter.getDefaultClassifierFactory(locale,false,new TfIdfClassifierFactory());
+		ClassifierFactory factory1=Starter.getDefaultClassifierFactory(locale,false,new SvmClassifierFactory());
 		ClassifierFactory factory2=Starter.getDefaultClassifierFactory(locale,false,new BayesianClassifierFactory());
-		ClassifierFactory factory3=Starter.getDefaultClassifierFactory(locale,false,new KNearestClassifierFactory().setK(3));
-		ClassifierFactory factory4=Starter.getDefaultClassifierFactory(locale,false,new SvmClassifierFactory());
-		ClassifierFactory factory5=Starter.getDefaultClassifierFactory(locale,true,new TfIdfClassifierFactory());
-		ClassifierFactory factory6=Starter.getDefaultClassifierFactory(locale,true,new BayesianClassifierFactory());
-		ClassifierFactory factory7=Starter.getDefaultClassifierFactory(locale,true,new KNearestClassifierFactory().setK(3));
-		ClassifierFactory factory8=Starter.getDefaultClassifierFactory(locale,true,new SvmClassifierFactory());
-		return new ClassifierFactory[]{factory1,factory2,factory4,factory5,factory6,factory8};
+		ClassifierFactory factory3=Starter.getDefaultClassifierFactory(locale,false,new TfIdfClassifierFactory());
+		return new ClassifierFactory[]{factory1,factory2,factory3};
 	}
 	private static SplitDataSet[] getSplitDataSets(DataSet<String> dataSet){
 		return new SplitDataSet[]{

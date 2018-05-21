@@ -28,28 +28,23 @@ import java.util.stream.*;
  * @author kwong
  * @param <T> the type of tokens in the streams
  */
-public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,FrequenciesModel.FrequencyProfile<T>> implements Persistable<T>{
+public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,FrequenciesModel.FrequencyProfile<T>> 
+		implements TokenFrequenciesModel<T>,Persistable<T>{
 	/**
 	 * Create a model
 	 */
 	public FrequenciesModel(){
 		super(()->new FrequenciesModel.FrequencyProfile<>(),(data,profile)->profile.update(data));
 	}
-	/**
-	 * @return the number of samples trained
-	 */
+	@Override
 	public long getSampleCount(){
 		return getProfiles().values().stream().mapToLong((profile)->profile.getDocumentCount()).sum();
 	}
-	/**
-	 * @return the frequencies table for each category
-	 */
+	@Override
 	public Map<Category,ImmutableFrequencies<T>> getTokenFrequencies(){
 		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->new ImmutableFrequencies<>(e.getValue().getTokenFrequencies())));
 	}
-	/**
-	 * @return the number of samples that contains each token 
-	 */
+	@Override
 	public ImmutableFrequencies<T> getTotalDocumentFrequencies(){
 		Frequencies<T> documentFrequenciesRaw=new Frequencies<>();
 		getProfiles().forEach((k,v)->{
@@ -57,9 +52,7 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 		});
 		return new ImmutableFrequencies<>(documentFrequenciesRaw);
 	}
-	/**
-	 * @return the frequency of each token in all samples 
-	 */
+	@Override
 	public ImmutableFrequencies<T> getTotalTokenFrequencies(){
 		Frequencies<T> tokenFrequenciesRaw=new Frequencies<>();
 		getProfiles().forEach((k,v)->{
@@ -67,59 +60,20 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 		});
 		return new ImmutableFrequencies<>(tokenFrequenciesRaw);
 	}
-	/**
-	 * @return the number of samples in each category
-	 */
+	@Override
 	public ImmutableFrequencies<Category> getSampleCounts(){
 		return new ImmutableFrequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->e.getValue().getDocumentCount())));
 	}
-	/**
-	 * @return the number of unique tokens in each category
-	 */
+	@Override
 	public ImmutableFrequencies<Category> getTokenCounts(){
 		return new ImmutableFrequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->(long)e.getValue().getTokenFrequencies().getTokenCount())));
 	}
-	/**
-	 * Retain only the tokens that have its total frequency within a range
-	 * @param start lower bound(inclusive)
-	 * @param end upper bound(exclusive)
-	 */
-	public void keepFrequencyRange(long start,long end){
-		Set<T> toKeep=getTotalTokenFrequencies().toMap().entrySet().stream().
-				filter((e)->e.getValue()>=start&&e.getValue()<end).
-				map((e)->e.getKey()).collect(Collectors.toSet());
+	@Override
+	public void retainAll(Set<T> toKeep){
 		getProfiles().forEach((k,v)->{
 			v.getDocumentFrequencies().toMap().keySet().retainAll(toKeep);
 			v.getTokenFrequencies().toMap().keySet().retainAll(toKeep);
 		});
-	}
-	/**
-	 * @return the histogram of tokens
-	 */
-	public Frequencies<Long> getTokenHistogram(){
-		Frequencies<Long> histogram=new Frequencies<>();
-		getTotalTokenFrequencies().toMap().forEach((k,v)->histogram.advanceFrequency(v));
-		return histogram;
-	}
-	/**
-	 * Get the quantile of token histogram
-	 * @param q the level
-	 * @return the quantile
-	 */
-	public long[] getQuantile(double... q){
-		long[] acc=new long[q.length];
-		long[] quantile=new long[q.length];
-		Frequencies<Long> histogram=getTokenHistogram();
-		long total=histogram.toMap().values().stream().mapToLong((c)->c.getCount()).sum();
-		histogram.toMap().forEach((k,v)->{
-			for(int i=0;i<q.length;i++){
-				if(acc[i]<total*q[i]){
-					acc[i]+=v.getCount();
-					quantile[i]=k;
-				}
-			}
-		});
-		return quantile;
 	}
 	@Override
 	public void save(File directory,Function<T,String> encoder){

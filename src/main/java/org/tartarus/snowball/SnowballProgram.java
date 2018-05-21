@@ -45,6 +45,7 @@ public class SnowballProgram implements Serializable{
 	}
 	/**
 	 * Set the current string.
+	 * @param value current string
 	 */
 	public void setCurrent(String value){
 		// Make a new StringBuilder.  If we reuse the old one, and a user of
@@ -58,6 +59,7 @@ public class SnowballProgram implements Serializable{
 	}
 	/**
 	 * Get the current string.
+	 * @return  the current string
 	 */
 	public String getCurrent(){
 		return current.toString();

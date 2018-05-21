@@ -24,7 +24,7 @@ import java.util.stream.*;
  * @author kwong
  * @param <T> the type of the objects to be classified
  */
-public class KNearestClassifierFactory<T> implements ClassifierFactory<Classifier<Stream<T>>,DocumentVectorsModel<T>,Stream<T>>{
+public class KNearestClassifierFactory<T> extends StreamClassifierFactory<Classifier<Stream<T>>,DocumentVectorsModel<T>,T>{
 	private TfIdfFormula tfIdfFormula=TfIdfFormula.STANDARD;
 	private int k=1;
 	/**
@@ -63,7 +63,7 @@ public class KNearestClassifierFactory<T> implements ClassifierFactory<Classifie
 		return k;
 	}
 	@Override
-	public Classifier<Stream<T>> getClassifier(DocumentVectorsModel<T> model){
+	public Classifier<Stream<T>> createClassifier(DocumentVectorsModel<T> model){
 		return new KNearestClassifier<>(model.getProfiles(),model.getTotalDocumentFrequencies(),
 				model.getSampleCount(),tfIdfFormula,k);
 	}
@@ -86,7 +86,6 @@ public class KNearestClassifierFactory<T> implements ClassifierFactory<Classifie
 			this.tfIdfFormula=tfIdfFormula;
 			this.k=k;
 		}
-		private int i=0;
 		@Override
 		public List<ClassificationResult> getCandidates(Stream<T> object,int max){
 			ImmutableFrequencies<T> unknown=new ImmutableFrequencies<>(object);
@@ -117,7 +116,7 @@ public class KNearestClassifierFactory<T> implements ClassifierFactory<Classifie
 		}
 	}
 	@Override
-	public String toString(){
+	protected String getName(){
 		return "kNN";
 	}
 }

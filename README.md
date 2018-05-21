@@ -87,11 +87,13 @@ Classifiers are used to assign class labels to token streams. The toolkit includ
 
 ## Evalation
 
-Dataset|Samples|Actuary
----|---|---
-[YouTube Spam Collection](http://archive.ics.uci.edu/ml/datasets/YouTube+Spam+Collection)|1956|
-[SMS Spam Collection](http://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection)|5574|
-[Sentence Classification](http://archive.ics.uci.edu/ml/datasets/Sentence+Classification)|1510|
+Dataset|Samples|Classes|Accuracy
+---|---|---|---
+[YouTube Spam Collection](http://archive.ics.uci.edu/ml/datasets/YouTube+Spam+Collection)|1956|2|92.1%
+[SMS Spam Collection](http://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection)|5574|2|98.2%
+[Sentence Classification](http://archive.ics.uci.edu/ml/datasets/Sentence+Classification)|1510|5|80.4%
+[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|135|21578|59.8%
+[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|175|21578|67.8%
 
 ## Usage
 
@@ -150,6 +152,8 @@ public class Demo{
 		//Create a naive Bayesian ClassifierFactory. For other classifier, use
         //new SvmClassifierFactory(),new KNearestClassifierFactory().setK(k) or new TfIdfClassifierFactory()
 		BayesianClassifierFactory<String> baseClassifierFactory=new BayesianClassifierFactory<>();
+		//Select at most 500 features using Tf-Idf
+		baseClassifierFactory.setFeatureSelector(new TfIdfFeatureSelector<>(500));
 		//Transform input text, the following one turn traditional Chinese into simplified Chinese
 		Function<String,String> preTokenize=TextPreprocessors.getIcuTransformer("Traditional-Simplified");
 		//Create a tokenizer, the following one consider all characters as token
@@ -275,6 +279,13 @@ __一个强大易用的Java文本分类工具包__
 - 在训练数据较多时使用较宽松的预处理，以便利用细致特征进行更精确的分类。
 - 在训练数据较少时使用较积极的预处理，以防过度拟合。
 
+### 特征选取
+
+当把所有单词都当作特征时，模型可能会太大，而且可能有过度拟合倾向。因此，
+有时可能需要只保留部分单词作为特征。本工具包提供了以下特征选取器：
+- 选择Tf-Idf最高的哪些单词
+- 选择词频在一定范围内的单词
+
 ### 分类器
 
 分类器用于把猜测单词序列属于哪个分类。本工具包提供了以下分类器：
@@ -284,14 +295,6 @@ __一个强大易用的Java文本分类工具包__
 - 朴素贝叶斯分类器。在各单词的出现相互独立的假设下，用贝叶斯公式计算待分类文本在各类别中概率。
 - TF-IDF分类器。按待分类文本的单词TF-IDF向量与各类别的单词TF-IDF向量间的夹角决定与类别的相关性。
 - SVM分类器。使用支持向量机进行分类。
-
-## 效果
-
-数据集|样本数
----|---|---
-[YouTube Spam Collection](http://archive.ics.uci.edu/ml/datasets/YouTube+Spam+Collection)|1956
-[SMS Spam Collection](http://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection)|5574
-[Sentence Classification](http://archive.ics.uci.edu/ml/datasets/Sentence+Classification)|1510
 
 ## 用法
 
@@ -349,6 +352,8 @@ public class Demo{
 		//创建朴素贝叶斯单词流分类器，对于其它分类器改为new SvmClassifierFactory()、
 		//new KNearestClassifierFactory().setK(k)或new TfIdfClassifierFactory()
 		BayesianClassifierFactory<String> baseClassifierFactory=new BayesianClassifierFactory<>();
+		//只用Tf-Idf最高的500个单词做分类
+		baseClassifierFactory.setFeatureSelector(new TfIdfFeatureSelector<>(500));
 		//创建对输入文本进行的转换，如这里是把繁体中文转换为简体中文
 		Function<String,String> preTokenize=TextPreprocessors.getIcuTransformer("Traditional-Simplified");
 		//创建分词器，这里是把每个字符当作一个单词
@@ -402,3 +407,13 @@ public class Evaluator{
 	}
 }
 ```
+
+## 效果
+
+数据集|样本数|分类数|准确率
+---|---|---|---
+[YouTube Spam Collection](http://archive.ics.uci.edu/ml/datasets/YouTube+Spam+Collection)|1956|2|92.1%
+[SMS Spam Collection](http://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection)|5574|2|98.2%
+[Sentence Classification](http://archive.ics.uci.edu/ml/datasets/Sentence+Classification)|1510|5|80.4%
+[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|135|21578|59.8%
+[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|175|21578|67.8%

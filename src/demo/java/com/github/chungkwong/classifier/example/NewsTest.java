@@ -43,7 +43,7 @@ public class NewsTest{
 		model.getUnderlying().load(new File("data/THUCNews/stat"),(x)->x);
 		Logger.getGlobal().log(Level.INFO,"SENTENCE TF-IDF: {0}",Validator.validate(fullDataStream(),classifierFactory.getClassifier(model)));
 	}*/
-	private static final Stream<Sample<String>> fullDataStream(){
+	private static Stream<Sample<String>> fullDataStream(){
 		try{
 			long time=System.currentTimeMillis();
 			Counter c=new Counter();

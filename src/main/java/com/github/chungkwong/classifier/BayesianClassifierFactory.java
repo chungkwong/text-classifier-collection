@@ -23,14 +23,14 @@ import java.util.stream.*;
  * @author kwong
  * @param <T> the type of the objects to be classified
  */
-public class BayesianClassifierFactory<T> implements ClassifierFactory<Classifier<Stream<T>>,FrequenciesModel<T>,Stream<T>>{
+public class BayesianClassifierFactory<T> extends StreamClassifierFactory<Classifier<Stream<T>>,FrequenciesModel<T>,T>{
 	/**
 	 * Create a Bayesian classifier factory
 	 */
 	public BayesianClassifierFactory(){
 	}
 	@Override
-	public Classifier<Stream<T>> getClassifier(FrequenciesModel<T> model){
+	public Classifier<Stream<T>> createClassifier(FrequenciesModel<T> model){
 		return new BayesianClassifier<>(model.getTokenFrequencies(),
 				model.getSampleCounts(),model.getTokenCounts(),model.getTotalTokenFrequencies());
 	}
@@ -92,7 +92,7 @@ public class BayesianClassifierFactory<T> implements ClassifierFactory<Classifie
 		}
 	}
 	@Override
-	public String toString(){
+	protected String getName(){
 		return "Bayesian";
 	}
 }

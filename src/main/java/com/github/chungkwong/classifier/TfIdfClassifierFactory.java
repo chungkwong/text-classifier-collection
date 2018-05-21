@@ -24,7 +24,7 @@ import java.util.stream.*;
  * @param <T> the type of data to be classified
  * @author kwong
  */
-public class TfIdfClassifierFactory<T> implements ClassifierFactory<Classifier<Stream<T>>,FrequenciesModel<T>,Stream<T>>{
+public class TfIdfClassifierFactory<T> extends StreamClassifierFactory<Classifier<Stream<T>>,FrequenciesModel<T>,T>{
 	private TfIdfFormula tfIdfFormula;
 	/**
 	 * Create a factory with standard TF-IDF formula
@@ -48,7 +48,7 @@ public class TfIdfClassifierFactory<T> implements ClassifierFactory<Classifier<S
 		return tfIdfFormula;
 	}
 	@Override
-	public Classifier<Stream<T>> getClassifier(FrequenciesModel<T> model){
+	public Classifier<Stream<T>> createClassifier(FrequenciesModel<T> model){
 		return new TfIdfClassifier<>(model.getTokenFrequencies(),
 				model.getTotalDocumentFrequencies(),model.getSampleCount(),tfIdfFormula);
 	}
@@ -100,7 +100,7 @@ public class TfIdfClassifierFactory<T> implements ClassifierFactory<Classifier<S
 		}
 	}
 	@Override
-	public String toString(){
+	protected String getName(){
 		return "TF-IDF";
 	}
 }

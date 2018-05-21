@@ -25,7 +25,7 @@ import java.util.stream.*;
  * @author kwong
  * @param <T> the type of the objects to be classified
  */
-public class SvmClassifierFactory<T> implements ClassifierFactory<Classifier<Stream<T>>,DocumentVectorsModel<T>,Stream<T>>{
+public class SvmClassifierFactory<T> extends StreamClassifierFactory<Classifier<Stream<T>>,DocumentVectorsModel<T>,T>{
 	private TfIdfFormula tfIdfFormula=TfIdfFormula.STANDARD;
 	private Parameter parameter=new Parameter(SolverType.L2R_L2LOSS_SVC_DUAL,1,0.1);
 	/**
@@ -42,6 +42,7 @@ public class SvmClassifierFactory<T> implements ClassifierFactory<Classifier<Str
 	/**
 	 * Set parameters of liblinear
 	 * @param parameter
+	 * @return this
 	 */
 	public SvmClassifierFactory<T> setParameter(Parameter parameter){
 		this.parameter=parameter;
@@ -64,7 +65,7 @@ public class SvmClassifierFactory<T> implements ClassifierFactory<Classifier<Str
 	}
 	
 	@Override
-	public Classifier<Stream<T>> getClassifier(DocumentVectorsModel<T> model){
+	public Classifier<Stream<T>> createClassifier(DocumentVectorsModel<T> model){
 		ImmutableFrequencies<T> totalDocumentFrequencies=model.getTotalDocumentFrequencies();
 		Problem problem=new Problem();
 		problem.l=(int)model.getSampleCount();
@@ -157,7 +158,7 @@ public class SvmClassifierFactory<T> implements ClassifierFactory<Classifier<Str
 		}
 	}
 	@Override
-	public String toString(){
+	protected String getName(){
 		return "SVM";
 	}
 }
