@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import java.util.*;
 /**
  * Test the classifiers on the SMS Spam Collection form
  * http://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection
- * @author kwong
+ * @author Chan Chung Kwong
  */
 public class SpamTest{
 	//Path to the data file

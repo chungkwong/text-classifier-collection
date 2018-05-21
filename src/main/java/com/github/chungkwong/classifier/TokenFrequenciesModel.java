@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.stream.*;
 /**
  * The common interface for token frequencies based model
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <T> type of the object to be classified
  */
 public interface TokenFrequenciesModel<T> extends Trainable<Stream<T>>{

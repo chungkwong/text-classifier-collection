@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import java.io.*;
 import java.util.*;
 /**
  *
- * @author kwong
+ * @author Chan Chung Kwong
  */
 public class GetStarted{
 	private static final String DATA_FILE="data/foobar.csv";

@@ -20,8 +20,8 @@ __A full fledged text classification toolkit for Java__
 
 ### Overview
 
-Since most classifiers originally work on euclidean space, text are transformed into
-vector before applying them. The usual way to do that is that split text into tokens
+Since most classifiers originally work on euclidean space, texts are transformed into
+vectors before applying them. The usual way to do that is that split text into tokens
 and consider the frequency of each token.
 
 ### Tokenizer
@@ -34,7 +34,7 @@ Text need to be tokenizied before being used to train or classify. The toolkit i
 - Split using a regular expression that matches token, the other parts can be kept or not 
   according to your opinion.
 
-Surely, you can pass your own tokenizers to the toolkit.
+Surely, you can pass your own tokenizers into the toolkit.
 
 ### Filters
 
@@ -61,9 +61,9 @@ Filters transform a token stream into another. The toolkit includes:
 - Those who map a token into zero or more tokens, e.g.
     - Insert synonyms
     - User-defined mapping
-- Convert the stream into a stream from by n-gram from the original stream.
+- Convert the stream into a stream form by n-gram from the original stream.
 
-Surely, you can pass your own filters to the toolkit.
+Surely, you can pass your own filters into the toolkit.
 
 As a rule of thumb：
 - The larger the training set is, the less aggressive filters can be applied in 
@@ -92,8 +92,8 @@ Dataset|Samples|Classes|Accuracy
 [YouTube Spam Collection](http://archive.ics.uci.edu/ml/datasets/YouTube+Spam+Collection)|1956|2|92.1%
 [SMS Spam Collection](http://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection)|5574|2|98.2%
 [Sentence Classification](http://archive.ics.uci.edu/ml/datasets/Sentence+Classification)|1510|5|80.4%
-[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|135|21578|59.8%
-[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|175|21578|67.8%
+[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|21578|135|59.8%
+[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|21578|175|67.8%
 
 ## Usage
 
@@ -181,10 +181,6 @@ import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
-/**
- *
- * @author kwong
- */
 public class Evaluator{
 	private static final String DATA_FILE="data/foobar.csv";
 	public static void main(String[] args){
@@ -415,5 +411,5 @@ public class Evaluator{
 [YouTube Spam Collection](http://archive.ics.uci.edu/ml/datasets/YouTube+Spam+Collection)|1956|2|92.1%
 [SMS Spam Collection](http://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection)|5574|2|98.2%
 [Sentence Classification](http://archive.ics.uci.edu/ml/datasets/Sentence+Classification)|1510|5|80.4%
-[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|135|21578|59.8%
-[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|175|21578|67.8%
+[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|21578|135|59.8%
+[Reuters-21578 Text Categorization Collection](http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection)|21578|175|67.8%

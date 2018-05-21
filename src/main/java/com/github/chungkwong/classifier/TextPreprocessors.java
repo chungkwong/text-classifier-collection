@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import org.tartarus.snowball.*;
 import org.tartarus.snowball.ext.*;
 /**
  * Provides various preprocessors for text in natural language.
- * @author kwong
+ * @author Chan Chung Kwong
  */
 public class TextPreprocessors{
 	/**

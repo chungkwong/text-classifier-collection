@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.function.*;
 /**
  * A factory that build classifier which first preprocess data and then apply another classifier 
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <M> the type of the model
  * @param <T> the type of the objects to be classified
  * @param <S> the type of the objects after preprocessing

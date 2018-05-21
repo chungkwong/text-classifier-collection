@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.stream.*;
 /**
  * Records of frequency of different objects that do not tends to change
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <T> the type of the objects to be recorded
  */
 public class ImmutableFrequencies<T>{

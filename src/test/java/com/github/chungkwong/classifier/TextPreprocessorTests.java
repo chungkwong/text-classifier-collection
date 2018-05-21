@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import java.util.stream.*;
 import org.junit.*;
 /**
  *
- * @author kwong
+ * @author Chan Chung Kwong
  */
 public class TextPreprocessorTests{
 	public TextPreprocessorTests(){

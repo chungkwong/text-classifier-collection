@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ package com.github.chungkwong.classifier;
 import java.util.function.*;
 /**
  * Model based on another model
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <M> type of the backed model
  * @param <T> type of the objects to be classified
  * @param <S> type of the objects that the backed model can classify

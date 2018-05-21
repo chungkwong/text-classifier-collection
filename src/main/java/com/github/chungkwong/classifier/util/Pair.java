@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ package com.github.chungkwong.classifier.util;
 import java.util.*;
 /**
  * Pair of object
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <K> the type of the first object
  * @param <V> the type of the last object
  */

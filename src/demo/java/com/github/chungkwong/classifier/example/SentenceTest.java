@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import java.util.stream.*;
 /**
  * Test the classifiers on the Sentence Classification form
  * http://archive.ics.uci.edu/ml/datasets/Sentence+Classification
- * @author kwong
+ * @author Chan Chung Kwong
  */
 public class SentenceTest{
 	//Path to the data directory

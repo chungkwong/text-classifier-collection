@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.stream.*;
 /**
  * Validator being used to evaluate classifier
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <T> the type of object to be classified
  */
 public class Validator<T>{

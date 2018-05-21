@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import java.util.logging.*;
 import java.util.stream.*;
 /**
  * Trainable model being used to classify streams based on frequencies of token in the stream
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <T> the type of tokens in the streams
  */
 public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,FrequenciesModel.FrequencyProfile<T>> 

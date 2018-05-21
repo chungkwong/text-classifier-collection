@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ package org.tartarus.snowball.ext;
 import org.tartarus.snowball.*;
 /**
  *
- * @author kwong
+ * @author Chan Chung Kwong
  */
 public class NaiveStemmer extends SnowballStemmer{
 	@Override

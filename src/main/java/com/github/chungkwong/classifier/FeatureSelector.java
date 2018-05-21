@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ import java.util.function.*;
 import java.util.stream.*;
 /**
  * Feature selector
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <M> type of model
  * @param <T> underlying type of objects to be classified
  */

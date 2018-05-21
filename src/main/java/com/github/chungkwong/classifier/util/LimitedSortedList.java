@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ package com.github.chungkwong.classifier.util;
 import java.util.*;
 /**
  * List that only keep limited number of elements in ascending order
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <T> type of elements
  */
 public class LimitedSortedList<T>{

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.function.*;
 /**
  * Trainable model that only rely on profile about each category
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <T> the type of the object that the model will be used to classify
  * @param <P> the type of the profile about each category
  */

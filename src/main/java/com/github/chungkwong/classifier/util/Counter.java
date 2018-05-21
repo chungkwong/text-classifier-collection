@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 package com.github.chungkwong.classifier.util;
 /**
  * Counter, i.e. mutable long integer
- * @author kwong
+ * @author Chan Chung Kwong
  */
 public class Counter{
 	private long count;

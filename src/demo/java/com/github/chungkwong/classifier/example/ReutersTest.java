@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.logging.*;
 import java.util.stream.*;
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import java.util.stream.*;
 /**
  * Test the classifiers on the Reuters-21578 Text Categorization Collection form
  * http://archive.ics.uci.edu/ml/datasets/Reuters-21578+Text+Categorization+Collection
- * @author kwong
+ * @author Chan Chung Kwong
  */
 public class ReutersTest{
 	//Path to the data directory

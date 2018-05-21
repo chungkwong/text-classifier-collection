@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import java.util.stream.*;
  * 
  * Factory for TF-IDF classifier
  * @param <T> the type of data to be classified
- * @author kwong
+ * @author Chan Chung Kwong
  */
 public class TfIdfClassifierFactory<T> extends StreamClassifierFactory<Classifier<Stream<T>>,FrequenciesModel<T>,T>{
 	private TfIdfFormula tfIdfFormula;

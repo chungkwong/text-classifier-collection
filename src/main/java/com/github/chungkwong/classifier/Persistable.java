@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ import java.io.*;
 import java.util.function.*;
 /**
  * Model that can be saved to and loaded from file system
- * @author kwong
+ * @author Chan Chung Kwong
  * @param <T> the type that is needed to convert to string while saving the model 
  */
 public interface Persistable<T>{
