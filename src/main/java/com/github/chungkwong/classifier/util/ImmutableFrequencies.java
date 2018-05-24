@@ -22,7 +22,7 @@ import java.util.stream.*;
  * @author Chan Chung Kwong
  * @param <T> the type of the objects to be recorded
  */
-public class ImmutableFrequencies<T>{
+public class ImmutableFrequencies<T> implements Frequencies<T>{
 	private final Map<T,Long> frequency;
 	/**
 	 * Create a frequencies table
@@ -35,7 +35,7 @@ public class ImmutableFrequencies<T>{
 	 * Create a frequencies table
 	 * @param frequency the source
 	 */
-	public ImmutableFrequencies(Frequencies<T> frequency){
+	public ImmutableFrequencies(MutableFrequencies<T> frequency){
 		this.frequency=frequency.toMap().entrySet().stream().collect(
 				Collectors.toMap((e)->e.getKey(),(e)->e.getValue().getCount()));
 	}
@@ -47,17 +47,11 @@ public class ImmutableFrequencies<T>{
 		this.frequency=tokens.collect(
 				Collectors.groupingBy((e)->e,Collectors.counting()));
 	}
-	/**
-	 * Get the frequency of a object
-	 * @param token the object
-	 * @return the frequency
-	 */
+	@Override
 	public long getFrequency(T token){
 		return frequency.getOrDefault(token,0L);
 	}
-	/**
-	 * @return the number of unique objects found
-	 */
+	@Override
 	public int getTokenCount(){
 		return frequency.size();
 	}

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.chungkwong</groupId>
     <artifactId>text-classifier-collection</artifactId>
-    <version>0.1</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 	<name>text-classifier-collection</name>
 	<description>A full fledged text classification toolkit for Java</description>

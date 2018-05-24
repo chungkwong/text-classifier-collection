@@ -51,7 +51,7 @@ public class SvmClassifierFactory<T> extends StreamClassifierFactory<Classifier<
 	/**
 	 * Set TF-IDF formula
 	 * @param tfIdfFormula TF-IDF formula
-	 * @return
+	 * @return this
 	 */
 	public SvmClassifierFactory<T> setTfIdfFormula(TfIdfFormula tfIdfFormula){
 		this.tfIdfFormula=tfIdfFormula;

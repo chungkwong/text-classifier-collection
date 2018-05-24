@@ -6,7 +6,7 @@ __A full fledged text classification toolkit for Java__
 
 - Full fledged
     - Bulit-in support for common text preprocessors found in information retrieval system 
-    - Bulit-in SVM, kNN, and naive Bayesian classifiers
+    - Bulit-in SVM, C4.5, kNN, and naive Bayesian classifiers
     - Bulit-in support for CVS format
 - Highly customizable
     - You can plugin your own tokenizer, transformer, stopwords, synonyms,
@@ -84,6 +84,7 @@ Classifiers are used to assign class labels to token streams. The toolkit includ
   vector of the stream and the token TF-IDF vector of the class.
 - SVM classifier. Such classifier use support vector machine which solve a kind 
   of conditional optimization problem.
+- C4.5 classifier. Such classifier use decision trees to classify objects.
 
 ## Evalation
 
@@ -106,7 +107,7 @@ add the following to your `pom.xml`:
 <dependency>
     <groupId>com.github.chungkwong</groupId>
     <artifactId>text-classifier-collection</artifactId>
-    <version>0.1</version>
+    <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -150,7 +151,8 @@ public class Demo{
 	private static final String DATA_FILE="data/foobar.csv";
 	public static void main(String[] args){
 		//Create a naive Bayesian ClassifierFactory. For other classifier, use
-        //new SvmClassifierFactory(),new KNearestClassifierFactory().setK(k) or new TfIdfClassifierFactory()
+        //new SvmClassifierFactory(),new KNearestClassifierFactory().setK(k) 
+        //new C45ClassifierFactory() or new TfIdfClassifierFactory()
 		BayesianClassifierFactory<String> baseClassifierFactory=new BayesianClassifierFactory<>();
 		//Select at most 500 features using Tf-Idf
 		baseClassifierFactory.setFeatureSelector(new TfIdfFeatureSelector<>(500));
@@ -216,7 +218,7 @@ __一个强大易用的Java文本分类工具包__
 
 - 功能全面
     - 内置信息检索中各种常用的文本预处理方法
-    - 内置SVM、kNN、朴素贝叶斯等多种分类器
+    - 内置SVM、C4.5、kNN、朴素贝叶斯等多种分类器
     - 内置支持CSV等格式数据的读取
 - 高度可定制
     - 你可以插入你编写的分词方法、单词规范化方法、停用词列表、同义词列表、TF-IDF公式等等
@@ -291,6 +293,7 @@ __一个强大易用的Java文本分类工具包__
 - 朴素贝叶斯分类器。在各单词的出现相互独立的假设下，用贝叶斯公式计算待分类文本在各类别中概率。
 - TF-IDF分类器。按待分类文本的单词TF-IDF向量与各类别的单词TF-IDF向量间的夹角决定与类别的相关性。
 - SVM分类器。使用支持向量机进行分类。
+- C4.5分类器。使用决策树进行分类。
 
 ## 用法
 
@@ -302,7 +305,7 @@ __一个强大易用的Java文本分类工具包__
 <dependency>
     <groupId>com.github.chungkwong</groupId>
     <artifactId>text-classifier-collection</artifactId>
-    <version>0.1</version>
+    <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -346,7 +349,8 @@ public class Demo{
 	private static final String DATA_FILE="data/foobar.csv";
 	public static void main(String[] args){
 		//创建朴素贝叶斯单词流分类器，对于其它分类器改为new SvmClassifierFactory()、
-		//new KNearestClassifierFactory().setK(k)或new TfIdfClassifierFactory()
+		//new KNearestClassifierFactory().setK(k)、new TfIdfClassifierFactory()或
+        //new C45ClassifierFactory()
 		BayesianClassifierFactory<String> baseClassifierFactory=new BayesianClassifierFactory<>();
 		//只用Tf-Idf最高的500个单词做分类
 		baseClassifierFactory.setFeatureSelector(new TfIdfFeatureSelector<>(500));

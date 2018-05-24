@@ -46,7 +46,7 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 	}
 	@Override
 	public ImmutableFrequencies<T> getTotalDocumentFrequencies(){
-		Frequencies<T> documentFrequenciesRaw=new Frequencies<>();
+		MutableFrequencies<T> documentFrequenciesRaw=new MutableFrequencies<>();
 		getProfiles().forEach((k,v)->{
 			documentFrequenciesRaw.merge(v.getDocumentFrequencies());
 		});
@@ -54,7 +54,7 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 	}
 	@Override
 	public ImmutableFrequencies<T> getTotalTokenFrequencies(){
-		Frequencies<T> tokenFrequenciesRaw=new Frequencies<>();
+		MutableFrequencies<T> tokenFrequenciesRaw=new MutableFrequencies<>();
 		getProfiles().forEach((k,v)->{
 			tokenFrequenciesRaw.merge(v.getTokenFrequencies());
 		});
@@ -113,7 +113,7 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 			Logger.getLogger(FrequenciesModel.class.getName()).log(Level.SEVERE,null,ex);
 		}
 	}
-	private void loadLine(String line,Frequencies<T> frequencies,Function<String,T> decoder){
+	private void loadLine(String line,MutableFrequencies<T> frequencies,Function<String,T> decoder){
 		int cut=line.indexOf('\t');
 		if(cut!=-1){
 			frequencies.advanceFrequency(decoder.apply(line.substring(0,cut)),Long.valueOf(line.substring(cut+1)));
@@ -128,8 +128,8 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 	 */
 	public static class FrequencyProfile<T>{
 		private long documentCount=0;
-		private final Frequencies<T> tokenFrequencies=new Frequencies<>();
-		private final Frequencies<T> documentFrequencies=new Frequencies<>();
+		private final MutableFrequencies<T> tokenFrequencies=new MutableFrequencies<>();
+		private final MutableFrequencies<T> documentFrequencies=new MutableFrequencies<>();
 		/**
 		 * Create a empty profile
 		 */
@@ -153,13 +153,13 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 		/**
 		 * @return the number of samples that contains each token in the category
 		 */
-		public Frequencies<T> getDocumentFrequencies(){
+		public MutableFrequencies<T> getDocumentFrequencies(){
 			return documentFrequencies;
 		}
 		/**
 		 * @return the frequency of each token in the category
 		 */
-		public Frequencies<T> getTokenFrequencies(){
+		public MutableFrequencies<T> getTokenFrequencies(){
 			return tokenFrequencies;
 		}
 		/**

@@ -84,11 +84,12 @@ public class Starter{
 		ClassifierFactory factory1=Starter.getDefaultClassifierFactory(locale,false,new TfIdfClassifierFactory());
 		ClassifierFactory factory2=Starter.getDefaultClassifierFactory(locale,false,new BayesianClassifierFactory());
 		//ClassifierFactory factory3=Starter.getDefaultClassifierFactory(locale,false,new KNearestClassifierFactory().setK(3));
+		ClassifierFactory factory3=Starter.getDefaultClassifierFactory(locale,false,new C45ClassifierFactory());
 		ClassifierFactory factory4=Starter.getDefaultClassifierFactory(locale,false,new SvmClassifierFactory());
 		//ClassifierFactory factory5=Starter.getDefaultClassifierFactory(locale,true,new TfIdfClassifierFactory());
 		//ClassifierFactory factory6=Starter.getDefaultClassifierFactory(locale,true,new BayesianClassifierFactory());
 		//ClassifierFactory factory7=Starter.getDefaultClassifierFactory(locale,true,new KNearestClassifierFactory().setK(3));
 		//ClassifierFactory factory8=Starter.getDefaultClassifierFactory(locale,true,new SvmClassifierFactory());
-		return new ClassifierFactory[]{factory1,factory2,factory4};
+		return new ClassifierFactory[]{factory1,factory2,factory3,factory4};
 	}
 }

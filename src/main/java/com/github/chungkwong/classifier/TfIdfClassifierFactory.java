@@ -35,7 +35,7 @@ public class TfIdfClassifierFactory<T> extends StreamClassifierFactory<Classifie
 	/**
 	 * Set TF-IDF formula
 	 * @param tfIdfFormula TF-IDF formula
-	 * @return
+	 * @return this
 	 */
 	public TfIdfClassifierFactory<T> setTfIdfFormula(TfIdfFormula tfIdfFormula){
 		this.tfIdfFormula=tfIdfFormula;

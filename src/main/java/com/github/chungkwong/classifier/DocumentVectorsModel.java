@@ -38,21 +38,21 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,Docu
 	public Map<Category,ImmutableFrequencies<T>> getTokenFrequencies(){
 		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),
 				(e)->{
-					Frequencies<T> tokenFrequenciesRaw=new Frequencies<>();
+					MutableFrequencies<T> tokenFrequenciesRaw=new MutableFrequencies<>();
 					e.getValue().getDocumentVectors().forEach((vector)->tokenFrequenciesRaw.merge(vector));
 					return new ImmutableFrequencies<>(tokenFrequenciesRaw);
 				}));
 	}
 	@Override
 	public ImmutableFrequencies<T> getTotalDocumentFrequencies(){
-		Frequencies<T> documentFrequenciesRaw=new Frequencies<>();
+		MutableFrequencies<T> documentFrequenciesRaw=new MutableFrequencies<>();
 		getProfiles().values().stream().flatMap((vectors)->vectors.getDocumentVectors().stream()).
 				flatMap((v)->v.toMap().keySet().stream()).forEach((t)->documentFrequenciesRaw.advanceFrequency(t));
 		return new ImmutableFrequencies<>(documentFrequenciesRaw);
 	}
 	@Override
 	public ImmutableFrequencies<T> getTotalTokenFrequencies(){
-		Frequencies<T> tokenFrequenciesRaw=new Frequencies<>();
+		MutableFrequencies<T> tokenFrequenciesRaw=new MutableFrequencies<>();
 		getProfiles().values().stream().flatMap((vectors)->vectors.getDocumentVectors().stream()).
 				forEach((v)->tokenFrequenciesRaw.merge(v));
 		return new ImmutableFrequencies<>(tokenFrequenciesRaw);
@@ -66,6 +66,10 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,Docu
 		return new ImmutableFrequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),
 				(e)->(long)e.getValue().getDocumentVectors().stream().flatMap((v)->v.toMap().keySet().stream()).distinct().count())));
 	}
+	public Map<Category,MutableFrequencies<T>> getDocumentFrequencies(){
+		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->
+				e.getValue().getDocumentVectors().stream().collect(()->new MutableFrequencies<>(true),(f,v)->f.merge(v),(f1,f2)->f1.merge(f2))));
+	}
 	@Override
 	public void retainAll(Set<T> toKeep){
 		getProfiles().forEach((k,v)->{
@@ -77,11 +81,19 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,Docu
 	 * @param <T> the type of tokens
 	 */
 	public static class VectorsProfile<T>{
-		private final List<ImmutableFrequencies<T>> vectors=new LinkedList<>();
+		private final List<ImmutableFrequencies<T>> vectors;
 		/**
 		 * Create a empty profile
 		 */
 		public VectorsProfile(){
+			vectors=new LinkedList<>();
+		}
+		/**
+		 * Create a profile
+		 * @param vectors initial vector
+		 */
+		public VectorsProfile(List<ImmutableFrequencies<T>> vectors){
+			this.vectors=vectors;
 		}
 		/**
 		 * Update the profile based on sample data

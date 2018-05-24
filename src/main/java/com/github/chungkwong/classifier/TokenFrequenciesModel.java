@@ -56,8 +56,8 @@ public interface TokenFrequenciesModel<T> extends Trainable<Stream<T>>{
 	/**
 	 * @return the histogram of tokens
 	 */
-	default Frequencies<Long> getTokenHistogram(){
-		Frequencies<Long> histogram=new Frequencies<>();
+	default MutableFrequencies<Long> getTokenHistogram(){
+		MutableFrequencies<Long> histogram=new MutableFrequencies<>();
 		getTotalTokenFrequencies().toMap().forEach((k,v)->histogram.advanceFrequency(v));
 		return histogram;
 	}
@@ -69,7 +69,7 @@ public interface TokenFrequenciesModel<T> extends Trainable<Stream<T>>{
 	default long[] getQuantile(double... q){
 		long[] acc=new long[q.length];
 		long[] quantile=new long[q.length];
-		Frequencies<Long> histogram=getTokenHistogram();
+		MutableFrequencies<Long> histogram=getTokenHistogram();
 		long total=histogram.toMap().values().stream().mapToLong((c)->c.getCount()).sum();
 		histogram.toMap().forEach((k,v)->{
 			for(int i=0;i<q.length;i++){

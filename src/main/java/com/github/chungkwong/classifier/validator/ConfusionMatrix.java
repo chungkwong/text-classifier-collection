@@ -23,13 +23,13 @@ import java.util.*;
  * @author Chan Chung Kwong
  */
 public class ConfusionMatrix{
-	private final Frequencies<Pair<Category,Category>> matrix;
+	private final MutableFrequencies<Pair<Category,Category>> matrix;
 	private long testTime;
 	/**
 	 * Create a confusion matrix
 	 */
 	public ConfusionMatrix(){
-		this.matrix=new Frequencies<>(true);
+		this.matrix=new MutableFrequencies<>(true);
 	}
 	/**
 	 * Advance a cell in the matrix by one
