@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kwong
+ * Copyright (C) 2018 Chan Chung Kwong
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,19 +23,19 @@ import java.util.stream.*;
  * @author Chan Chung Kwong
  * @param <T> Underlying type to be classified
  */
-public class C45ClassifierFactory<T> extends StreamClassifierFactory<Classifier<Stream<T>>,DocumentVectorsModel<T>,T>{
+public class C45ClassifierFactory<T> extends BagClassifierFactory<Classifier<Frequencies<T>>,DocumentVectorsModel<T>,T>{
 	/**
 	 * Create a C4.5 classifier factory
 	 */
 	public C45ClassifierFactory(){
 	}
 	@Override
-	public Classifier<Stream<T>> createClassifier(DocumentVectorsModel<T> model){
+	public Classifier<Frequencies<T>> createClassifier(DocumentVectorsModel<T> model){
 		return new C45Classifier<>(buildTree(model));
 	}
 	private DecisionTree<T> buildTree(DocumentVectorsModel<T> model){
-		Map<Category,MutableFrequencies<T>> documentFrequencies=model.getDocumentFrequencies();
-		ImmutableFrequencies<Category> sampleCounts=model.getSampleCounts();
+		Map<Category,Frequencies<T>> documentFrequencies=model.getDocumentFrequencies();
+		Frequencies<Category> sampleCounts=model.getSampleCounts();
 		T feature=selectFeature(documentFrequencies,model.getTotalDocumentFrequencies(),
 				sampleCounts,model.getSampleCount());
 		if(feature==null){
@@ -59,7 +59,7 @@ public class C45ClassifierFactory<T> extends StreamClassifierFactory<Classifier<
 		}
 	}
 	private static final double threhold=10e-6;
-	private T selectFeature(Map<Category,MutableFrequencies<T>> model,ImmutableFrequencies<T> docFreq,Frequencies<Category> sampleCounts,long sampleCount){
+	private T selectFeature(Map<Category,Frequencies<T>> model,Frequencies<T> docFreq,Frequencies<Category> sampleCounts,long sampleCount){
 		T bestFeature=null;
 		double maxGain=Double.NEGATIVE_INFINITY;
 		for(T feature:docFreq.toMap().keySet()){
@@ -71,7 +71,7 @@ public class C45ClassifierFactory<T> extends StreamClassifierFactory<Classifier<
 		}
 		return maxGain>threhold?bestFeature:null;
 	}
-	private double getInformationGain(T feature,Map<Category,MutableFrequencies<T>> model,Frequencies<T> docFreq,Frequencies<Category> sampleCounts,long sampleCount){
+	private double getInformationGain(T feature,Map<Category,Frequencies<T>> model,Frequencies<T> docFreq,Frequencies<Category> sampleCounts,long sampleCount){
 		return getEntropy(feature,docFreq,sampleCount)-getSplitEntropy(feature,model,sampleCounts,sampleCount);
 	}
 	private double getEntropy(T feature,Frequencies<T> docFreq,long sampleCount){
@@ -79,9 +79,9 @@ public class C45ClassifierFactory<T> extends StreamClassifierFactory<Classifier<
 		double nfreq=1-freq;
 		return -freq*Math.log(freq)-nfreq*Math.log(nfreq);
 	}
-	private double getSplitEntropy(T feature,Map<Category,MutableFrequencies<T>> model,Frequencies<Category> sampleCounts,long sampleCount){
+	private double getSplitEntropy(T feature,Map<Category,Frequencies<T>> model,Frequencies<Category> sampleCounts,long sampleCount){
 		double entropy=0;
-		for(Map.Entry<Category,MutableFrequencies<T>> entry:model.entrySet()){
+		for(Map.Entry<Category,Frequencies<T>> entry:model.entrySet()){
 			long documentCount=sampleCounts.getFrequency(entry.getKey());
 			entropy+=getEntropy(feature,entry.getValue(),documentCount)*documentCount;
 		}
@@ -91,14 +91,13 @@ public class C45ClassifierFactory<T> extends StreamClassifierFactory<Classifier<
 	public DocumentVectorsModel<T> createModel(){
 		return new DocumentVectorsModel<>();
 	}
-	private static class C45Classifier<T> implements Classifier<Stream<T>>{
+	private static class C45Classifier<T> implements Classifier<Frequencies<T>>{
 		private final DecisionTree<T> tree;
 		public C45Classifier(DecisionTree<T> tree){
 			this.tree=tree;
 		}
 		@Override
-		public List<ClassificationResult> getCandidates(Stream<T> object,int max){
-			ImmutableFrequencies<T> data=new ImmutableFrequencies<>(object);
+		public List<ClassificationResult> getCandidates(Frequencies<T> data,int max){
 			DecisionTree<T> node=tree;
 			while(!node.isLeaf()){
 				node=node.getChild(data);
@@ -132,14 +131,14 @@ public class C45ClassifierFactory<T> extends StreamClassifierFactory<Classifier<
 		public Category getCategory(){
 			return category;
 		}
-		public DecisionTree<T> getChild(ImmutableFrequencies<T> object){
+		public DecisionTree<T> getChild(Frequencies<T> object){
 			return object.getFrequency(feature)<=cut?lower:higher;
 		}
 		@Override
 		public String toString(){
 			return toString(0,new StringBuilder()).toString();
 		}
-		public StringBuilder toString(int lv,StringBuilder builder){
+		private StringBuilder toString(int lv,StringBuilder builder){
 			System.err.println(lv);
 			for(int i=0;i<lv;i++)
 				builder.append('-');

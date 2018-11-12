@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import com.github.chungkwong.classifier.util.*;
 import com.github.chungkwong.classifier.validator.*;
 import java.text.*;
 import java.util.*;
@@ -50,7 +51,16 @@ public class Starter{
 	 * @param base ClassifierFactory for Stream of string
 	 * @return a ClassifierFactory
 	 */
-	public static ClassifierFactory<? extends Classifier<String>,? extends Trainable<String>,String> getDefaultClassifierFactory(Locale locale,boolean stemming,ClassifierFactory<Classifier<Stream<String>>,?,Stream<String>> base){
+	public static ClassifierFactory<? extends Classifier<String>,? extends Trainable<String>,String> getDefaultClassifierFactory(Locale locale,boolean stemming,ClassifierFactory<Classifier<Frequencies<String>>,?,Frequencies<String>> base){
+		return new PreprocessClassifierFactory<>(getDefaultPreprocessor(locale,stemming),base);
+	}
+	/**
+	 * Get a text preprocessor that is currently considered a good try
+	 * @param locale locale of the text to be classified
+	 * @param stemming apply stemmer or not
+	 * @return the text preprocessor
+	 */
+	public static Function<String,Frequencies<String>> getDefaultPreprocessor(Locale locale,boolean stemming){
 		Function<String,String> preTokenize=TextPreprocessors.getJavaNormalizier(Normalizer.Form.NFKC);
 		Function<String,Stream<String>> tokenizer;
 		Function<Stream<String>,Stream<String>> postTokenize=TextPreprocessors.getWhitespaceFilter().andThen(TextPreprocessors.getFoldcaser());
@@ -65,8 +75,7 @@ public class Starter{
 		}else{
 			tokenizer=TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(locale));
 		}
-		return new PreprocessClassifierFactory<>(
-				TextPreprocessors.of(preTokenize,tokenizer,postTokenize),base);
+		return TextPreprocessors.of(preTokenize,tokenizer,postTokenize);
 	}
 	/**
 	 * Get a ClassifierFactory based on a dataset

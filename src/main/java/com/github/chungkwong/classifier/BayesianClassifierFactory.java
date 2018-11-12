@@ -17,20 +17,19 @@
 package com.github.chungkwong.classifier;
 import com.github.chungkwong.classifier.util.*;
 import java.util.*;
-import java.util.stream.*;
 /**
  * Factory for Bayesian classifier
  * @author Chan Chung Kwong
  * @param <T> the type of the objects to be classified
  */
-public class BayesianClassifierFactory<T> extends StreamClassifierFactory<Classifier<Stream<T>>,FrequenciesModel<T>,T>{
+public class BayesianClassifierFactory<T> extends BagClassifierFactory<Classifier<Frequencies<T>>,FrequenciesModel<T>,T>{
 	/**
 	 * Create a Bayesian classifier factory
 	 */
 	public BayesianClassifierFactory(){
 	}
 	@Override
-	public Classifier<Stream<T>> createClassifier(FrequenciesModel<T> model){
+	public Classifier<Frequencies<T>> createClassifier(FrequenciesModel<T> model){
 		return new BayesianClassifier<>(model.getTokenFrequencies(),
 				model.getSampleCounts(),model.getTokenCounts(),model.getTotalTokenFrequencies());
 	}
@@ -38,33 +37,33 @@ public class BayesianClassifierFactory<T> extends StreamClassifierFactory<Classi
 	public FrequenciesModel<T> createModel(){
 		return new FrequenciesModel<>();
 	}
-	private static class BayesianClassifier<T> implements Classifier<Stream<T>>{
-		private final Map<Category,ImmutableFrequencies<T>> profiles;
-		private final ImmutableFrequencies<Category> documentCounts;
-		private final ImmutableFrequencies<Category> tokenCounts;
-		private final ImmutableFrequencies<T> tokenFrequencies;
+	private static class BayesianClassifier<T> implements Classifier<Frequencies<T>>{
+		private final Map<Category,Frequencies<T>> profiles;
+		private final Frequencies<Category> documentCounts;
+		private final Frequencies<Category> tokenCounts;
+		private final Frequencies<T> tokenFrequencies;
 		private final long documentCount;
 		private final int tokenCount;
-		public BayesianClassifier(Map<Category,ImmutableFrequencies<T>> profiles,
-				ImmutableFrequencies<Category> documentCounts,ImmutableFrequencies<Category> tokenCounts,
-				ImmutableFrequencies<T> tokenFrequencies){
+		public BayesianClassifier(Map<Category,Frequencies<T>> profiles,
+				Frequencies<Category> documentCounts,Frequencies<Category> tokenCounts,
+				Frequencies<T> tokenFrequencies){
 			this.profiles=profiles;
 			this.documentCounts=documentCounts;
 			this.tokenCounts=tokenCounts;
 			this.tokenFrequencies=tokenFrequencies;
-			this.documentCount=documentCounts.toMap().values().stream().mapToLong((i)->i).sum();
+			this.documentCount=documentCounts.toMap().values().stream().mapToLong((i)->i.getCount()).sum();
 			this.tokenCount=tokenFrequencies.getTokenCount();
 		}
 		@Override
-		public List<ClassificationResult> getCandidates(Stream<T> object,int max){
+		public List<ClassificationResult> getCandidates(Frequencies<T> object,int max){
 			Category[] categories=profiles.keySet().toArray(new Category[0]);
 			double[] score=new double[categories.length];
 			Arrays.fill(score,1.0);
 			int[] maxExp=new int[]{0,0};
-			object.forEach((token)->{
+			object.toMap().entrySet().forEach((e)->{
 				for(int i=0;i<categories.length;i++){
 					score[i]=Math.scalb(score[i],maxExp[0]);
-					score[i]*=getCategoryProbability(categories[i],token);
+					score[i]*=getCategoryProbability(categories[i],e.getKey());
 					maxExp[1]=Math.min(-Math.getExponent(score[i]),maxExp[1]);
 				}
 				maxExp[0]=maxExp[1];

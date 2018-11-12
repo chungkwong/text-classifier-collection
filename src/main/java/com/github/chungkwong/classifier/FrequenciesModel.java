@@ -28,7 +28,7 @@ import java.util.stream.*;
  * @author Chan Chung Kwong
  * @param <T> the type of tokens in the streams
  */
-public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,FrequenciesModel.FrequencyProfile<T>> 
+public class FrequenciesModel<T> extends SimpleTrainableModel<Frequencies<T>,FrequenciesModel.FrequencyProfile<T>> 
 		implements TokenFrequenciesModel<T>,Persistable<T>{
 	/**
 	 * Create a model
@@ -41,32 +41,32 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 		return getProfiles().values().stream().mapToLong((profile)->profile.getDocumentCount()).sum();
 	}
 	@Override
-	public Map<Category,ImmutableFrequencies<T>> getTokenFrequencies(){
-		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->new ImmutableFrequencies<>(e.getValue().getTokenFrequencies())));
+	public Map<Category,Frequencies<T>> getTokenFrequencies(){
+		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->e.getValue().getTokenFrequencies()));
 	}
 	@Override
-	public ImmutableFrequencies<T> getTotalDocumentFrequencies(){
-		MutableFrequencies<T> documentFrequenciesRaw=new MutableFrequencies<>();
+	public Frequencies<T> getTotalDocumentFrequencies(){
+		Frequencies<T> documentFrequenciesRaw=new Frequencies<>(true);
 		getProfiles().forEach((k,v)->{
 			documentFrequenciesRaw.merge(v.getDocumentFrequencies());
 		});
-		return new ImmutableFrequencies<>(documentFrequenciesRaw);
+		return documentFrequenciesRaw;
 	}
 	@Override
-	public ImmutableFrequencies<T> getTotalTokenFrequencies(){
-		MutableFrequencies<T> tokenFrequenciesRaw=new MutableFrequencies<>();
+	public Frequencies<T> getTotalTokenFrequencies(){
+		Frequencies<T> tokenFrequenciesRaw=new Frequencies<>(true);
 		getProfiles().forEach((k,v)->{
 			tokenFrequenciesRaw.merge(v.getTokenFrequencies());
 		});
-		return new ImmutableFrequencies<>(tokenFrequenciesRaw);
+		return tokenFrequenciesRaw;
 	}
 	@Override
-	public ImmutableFrequencies<Category> getSampleCounts(){
-		return new ImmutableFrequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->e.getValue().getDocumentCount())));
+	public Frequencies<Category> getSampleCounts(){
+		return new Frequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->new Counter(e.getValue().getDocumentCount()))));
 	}
 	@Override
-	public ImmutableFrequencies<Category> getTokenCounts(){
-		return new ImmutableFrequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->(long)e.getValue().getTokenFrequencies().getTokenCount())));
+	public Frequencies<Category> getTokenCounts(){
+		return new Frequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->new Counter(e.getValue().getTokenFrequencies().getTokenCount()))));
 	}
 	@Override
 	public void retainAll(Set<T> toKeep){
@@ -113,7 +113,7 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 			Logger.getLogger(FrequenciesModel.class.getName()).log(Level.SEVERE,null,ex);
 		}
 	}
-	private void loadLine(String line,MutableFrequencies<T> frequencies,Function<String,T> decoder){
+	private void loadLine(String line,Frequencies<T> frequencies,Function<String,T> decoder){
 		int cut=line.indexOf('\t');
 		if(cut!=-1){
 			frequencies.advanceFrequency(decoder.apply(line.substring(0,cut)),Long.valueOf(line.substring(cut+1)));
@@ -128,8 +128,8 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 	 */
 	public static class FrequencyProfile<T>{
 		private long documentCount=0;
-		private final MutableFrequencies<T> tokenFrequencies=new MutableFrequencies<>();
-		private final MutableFrequencies<T> documentFrequencies=new MutableFrequencies<>();
+		private final Frequencies<T> tokenFrequencies=new Frequencies<>();
+		private final Frequencies<T> documentFrequencies=new Frequencies<>();
 		/**
 		 * Create a empty profile
 		 */
@@ -139,27 +139,21 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Stream<T>,Frequenc
 		 * Update the profile based on sample data
 		 * @param object sample data
 		 */
-		public void update(Stream<T> object){
-			Set<T> found=new TreeSet<>();
-			object.forEach((token)->{
-				tokenFrequencies.advanceFrequency(token);
-				if(!found.contains(token)){
-					documentFrequencies.advanceFrequency(token);
-					found.add(token);
-				}
-			});
+		public void update(Frequencies<T> object){
+			tokenFrequencies.merge(object);
+			object.toMap().keySet().forEach((token)->documentFrequencies.advanceFrequency(token));
 			++documentCount;
 		}
 		/**
 		 * @return the number of samples that contains each token in the category
 		 */
-		public MutableFrequencies<T> getDocumentFrequencies(){
+		public Frequencies<T> getDocumentFrequencies(){
 			return documentFrequencies;
 		}
 		/**
 		 * @return the frequency of each token in the category
 		 */
-		public MutableFrequencies<T> getTokenFrequencies(){
+		public Frequencies<T> getTokenFrequencies(){
 			return tokenFrequencies;
 		}
 		/**

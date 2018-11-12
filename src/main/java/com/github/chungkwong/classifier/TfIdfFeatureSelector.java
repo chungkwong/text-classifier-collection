@@ -46,13 +46,13 @@ public class TfIdfFeatureSelector<M extends TokenFrequenciesModel<T>,T> implemen
 		this.formula=formula;
 	}
 	@Override
-	public Set<T> select(M model,Function<M,? extends Classifier<Stream<T>>> classifierSupplier){
+	public Set<T> select(M model,Function<M,? extends Classifier<Frequencies<T>>> classifierSupplier){
 		LimitedSortedList<Pair<T,Double>> list=new LimitedSortedList<>(count,(p1,p2)->Double.compare(p2.getValue(),p1.getValue()));
-		ImmutableFrequencies<T> documentFrequencies=model.getTotalDocumentFrequencies();
-		ImmutableFrequencies<T> tokenFrequencies=model.getTotalTokenFrequencies();
+		Frequencies<T> documentFrequencies=model.getTotalDocumentFrequencies();
+		Frequencies<T> tokenFrequencies=model.getTotalTokenFrequencies();
 		long sampleCount=model.getSampleCount();
 		documentFrequencies.toMap().forEach((token,docFreq)->list.add(new Pair<>(token,
-				formula.calculate(tokenFrequencies.getFrequency(token),docFreq,sampleCount))));
+				formula.calculate(tokenFrequencies.getFrequency(token),docFreq.getCount(),sampleCount))));
 		return list.getElements().stream().map((p)->p.getKey()).collect(Collectors.toSet());
 	}
 	@Override

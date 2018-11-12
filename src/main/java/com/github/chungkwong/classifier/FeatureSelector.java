@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import com.github.chungkwong.classifier.util.*;
 import java.util.*;
 import java.util.function.*;
-import java.util.stream.*;
 /**
  * Feature selector
  * @author Chan Chung Kwong
@@ -31,5 +31,5 @@ public interface FeatureSelector<M extends TokenFrequenciesModel<T>,T>{
 	 * @param classifierSupplier function that create classifier from model
 	 * @return selected features
 	 */
-	Set<T> select(M model,Function<M,? extends Classifier<Stream<T>>> classifierSupplier);
+	Set<T> select(M model,Function<M,? extends Classifier<Frequencies<T>>> classifierSupplier);
 }

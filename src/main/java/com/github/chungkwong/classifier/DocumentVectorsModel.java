@@ -23,7 +23,7 @@ import java.util.stream.*;
  * @author Chan Chung Kwong
  * @param <T> the type of tokens in the streams
  */
-public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,DocumentVectorsModel.VectorsProfile<T>> implements TokenFrequenciesModel<T>{
+public class DocumentVectorsModel<T> extends SimpleTrainableModel<Frequencies<T>,DocumentVectorsModel.VectorsProfile<T>> implements TokenFrequenciesModel<T>{
 	/**
 	 * Create a model
 	 */
@@ -35,40 +35,40 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,Docu
 		return getProfiles().values().stream().mapToLong((profile)->profile.getDocumentVectors().size()).sum();
 	}
 	@Override
-	public Map<Category,ImmutableFrequencies<T>> getTokenFrequencies(){
+	public Map<Category,Frequencies<T>> getTokenFrequencies(){
 		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),
 				(e)->{
-					MutableFrequencies<T> tokenFrequenciesRaw=new MutableFrequencies<>();
+					Frequencies<T> tokenFrequenciesRaw=new Frequencies<>(true);
 					e.getValue().getDocumentVectors().forEach((vector)->tokenFrequenciesRaw.merge(vector));
-					return new ImmutableFrequencies<>(tokenFrequenciesRaw);
+					return tokenFrequenciesRaw;
 				}));
 	}
 	@Override
-	public ImmutableFrequencies<T> getTotalDocumentFrequencies(){
-		MutableFrequencies<T> documentFrequenciesRaw=new MutableFrequencies<>();
+	public Frequencies<T> getTotalDocumentFrequencies(){
+		Frequencies<T> documentFrequenciesRaw=new Frequencies<>(true);
 		getProfiles().values().stream().flatMap((vectors)->vectors.getDocumentVectors().stream()).
 				flatMap((v)->v.toMap().keySet().stream()).forEach((t)->documentFrequenciesRaw.advanceFrequency(t));
-		return new ImmutableFrequencies<>(documentFrequenciesRaw);
+		return documentFrequenciesRaw;
 	}
 	@Override
-	public ImmutableFrequencies<T> getTotalTokenFrequencies(){
-		MutableFrequencies<T> tokenFrequenciesRaw=new MutableFrequencies<>();
+	public Frequencies<T> getTotalTokenFrequencies(){
+		Frequencies<T> tokenFrequenciesRaw=new Frequencies<>(true);
 		getProfiles().values().stream().flatMap((vectors)->vectors.getDocumentVectors().stream()).
 				forEach((v)->tokenFrequenciesRaw.merge(v));
-		return new ImmutableFrequencies<>(tokenFrequenciesRaw);
+		return tokenFrequenciesRaw;
 	}
 	@Override
-	public ImmutableFrequencies<Category> getSampleCounts(){
-		return new ImmutableFrequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->(long)e.getValue().getDocumentVectors().size())));
+	public Frequencies<Category> getSampleCounts(){
+		return new Frequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->new Counter(e.getValue().getDocumentVectors().size()))));
 	}
 	@Override
-	public ImmutableFrequencies<Category> getTokenCounts(){
-		return new ImmutableFrequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),
-				(e)->(long)e.getValue().getDocumentVectors().stream().flatMap((v)->v.toMap().keySet().stream()).distinct().count())));
+	public Frequencies<Category> getTokenCounts(){
+		return new Frequencies<>(getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),
+				(e)->new Counter(e.getValue().getDocumentVectors().stream().flatMap((v)->v.toMap().keySet().stream()).distinct().count()))));
 	}
-	public Map<Category,MutableFrequencies<T>> getDocumentFrequencies(){
+	public Map<Category,Frequencies<T>> getDocumentFrequencies(){
 		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->
-				e.getValue().getDocumentVectors().stream().collect(()->new MutableFrequencies<>(true),(f,v)->f.merge(v),(f1,f2)->f1.merge(f2))));
+				e.getValue().getDocumentVectors().stream().collect(()->new Frequencies<>(true),(f,v)->f.merge(v),(f1,f2)->f1.merge(f2))));
 	}
 	@Override
 	public void retainAll(Set<T> toKeep){
@@ -81,7 +81,7 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,Docu
 	 * @param <T> the type of tokens
 	 */
 	public static class VectorsProfile<T>{
-		private final List<ImmutableFrequencies<T>> vectors;
+		private final List<Frequencies<T>> vectors;
 		/**
 		 * Create a empty profile
 		 */
@@ -92,20 +92,20 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Stream<T>,Docu
 		 * Create a profile
 		 * @param vectors initial vector
 		 */
-		public VectorsProfile(List<ImmutableFrequencies<T>> vectors){
+		public VectorsProfile(List<Frequencies<T>> vectors){
 			this.vectors=vectors;
 		}
 		/**
 		 * Update the profile based on sample data
 		 * @param object sample data
 		 */
-		public void update(Stream<T> object){
-			vectors.add(new ImmutableFrequencies<>(object));
+		public void update(Frequencies<T> object){
+			vectors.add((Frequencies<T>)object);
 		}
 		/**
 		 * @return the number of sample in the category
 		 */
-		public List<ImmutableFrequencies<T>> getDocumentVectors(){
+		public List<Frequencies<T>> getDocumentVectors(){
 			return vectors;
 		}
 	}

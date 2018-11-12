@@ -21,61 +21,41 @@ import java.util.*;
  * @author Chan Chung Kwong
  * @param <T> the type of the objects to be recorded
  */
-public class MutableFrequencies<T> implements Frequencies<T>{
-	private final Map<T,Counter> frequency;
+public class DoubleCounters<T>{
+	private final Map<T,DoubleCounter> frequency;
 	/**
 	 * Create a frequencies table backed by TreeMap
 	 */
-	public MutableFrequencies(){
+	public DoubleCounters(){
 		frequency=new TreeMap<>();
 	}
 	/**
 	 * Create a frequencies table
 	 * @param useHashMap if true, the table is backed by HashMap
 	 */
-	public MutableFrequencies(boolean useHashMap){
+	public DoubleCounters(boolean useHashMap){
 		frequency=useHashMap?new HashMap<>():new TreeMap<>();
-	}
-	/**
-	 * Increase the frequency of a given object by one
-	 * @param token the given object
-	 */
-	public void advanceFrequency(T token){
-		Counter counter=frequency.get(token);
-		if(counter==null){
-			counter=new Counter(1);
-			frequency.put(token,counter);
-		}else{
-			counter.advance();
-		}
 	}
 	/**
 	 * Increase the frequency of a given object by a given value
 	 * @param token the given object
-	 * @param times the given value
+	 * @param amount the given value
 	 */
-	public void advanceFrequency(T token,long times){
-		Counter counter=frequency.get(token);
+	public void advanceCounter(T token,double amount){
+		DoubleCounter counter=frequency.get(token);
 		if(counter==null){
-			counter=new Counter(times);
+			counter=new DoubleCounter(amount);
 			frequency.put(token,counter);
 		}else{
-			counter.advance(times);
+			counter.advance(amount);
 		}
 	}
 	/**
 	 * Merge frequencies into this table
 	 * @param toMerge the source
 	 */
-	public void merge(MutableFrequencies<T> toMerge){
-		toMerge.frequency.forEach((k,v)->advanceFrequency(k,v.getCount()));
-	}
-	/**
-	 * Merge frequencies into this table
-	 * @param toMerge the source
-	 */
-	public void merge(ImmutableFrequencies<T> toMerge){
-		toMerge.toMap().forEach((k,v)->advanceFrequency(k,v));
+	public void merge(DoubleCounters<T> toMerge){
+		toMerge.frequency.forEach((k,v)->advanceCounter(k,v.getValue()));
 	}
 	/**
 	 * Set the frequency of a object to zero
@@ -84,12 +64,10 @@ public class MutableFrequencies<T> implements Frequencies<T>{
 	public void reset(T token){
 		frequency.remove(token);
 	}
-	@Override
-	public long getFrequency(T token){
-		Counter counter=frequency.get(token);
-		return counter==null?0:counter.getCount();
+	public double getFrequency(T token){
+		DoubleCounter counter=frequency.get(token);
+		return counter==null?0:counter.getValue();
 	}
-	@Override
 	public int getTokenCount(){
 		return frequency.size();
 	}
@@ -97,12 +75,12 @@ public class MutableFrequencies<T> implements Frequencies<T>{
 	 * Map representation of the table
 	 * @return the map
 	 */
-	public Map<T,Counter> toMap(){
+	public Map<T,DoubleCounter> toMap(){
 		return frequency;
 	}
 	@Override
 	public boolean equals(Object obj){
-		return obj instanceof MutableFrequencies&&Objects.equals(frequency,((MutableFrequencies)obj).frequency);
+		return obj instanceof DoubleCounters&&Objects.equals(frequency,((DoubleCounters)obj).frequency);
 	}
 	@Override
 	public int hashCode(){

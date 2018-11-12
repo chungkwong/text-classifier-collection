@@ -24,7 +24,7 @@ import java.util.stream.*;
  * @author Chan Chung Kwong
  * @param <T> the type of the objects to be classified
  */
-public class KNearestClassifierFactory<T> extends StreamClassifierFactory<Classifier<Stream<T>>,DocumentVectorsModel<T>,T>{
+public class KNearestClassifierFactory<T> extends BagClassifierFactory<Classifier<Frequencies<T>>,DocumentVectorsModel<T>,T>{
 	private TfIdfFormula tfIdfFormula=TfIdfFormula.STANDARD;
 	private int k=1;
 	/**
@@ -63,7 +63,7 @@ public class KNearestClassifierFactory<T> extends StreamClassifierFactory<Classi
 		return k;
 	}
 	@Override
-	public Classifier<Stream<T>> createClassifier(DocumentVectorsModel<T> model){
+	public Classifier<Frequencies<T>> createClassifier(DocumentVectorsModel<T> model){
 		return new KNearestClassifier<>(model.getProfiles(),model.getTotalDocumentFrequencies(),
 				model.getSampleCount(),tfIdfFormula,k);
 	}
@@ -71,14 +71,14 @@ public class KNearestClassifierFactory<T> extends StreamClassifierFactory<Classi
 	public DocumentVectorsModel<T> createModel(){
 		return new DocumentVectorsModel<>();
 	}
-	private static class KNearestClassifier<T> implements Classifier<Stream<T>>{
+	private static class KNearestClassifier<T> implements Classifier<Frequencies<T>>{
 		private final TfIdfFormula tfIdfFormula;
-		private final ImmutableFrequencies<T> documentFrequencies;
+		private final Frequencies<T> documentFrequencies;
 		private final long documentCount;
 		private final int k;
 		private final Map<Category,DocumentVectorsModel.VectorsProfile<T>> profiles;
 		public KNearestClassifier(Map<Category,DocumentVectorsModel.VectorsProfile<T>> profiles,
-				ImmutableFrequencies<T> documentFrequencies,
+				Frequencies<T> documentFrequencies,
 				long documentCount,TfIdfFormula tfIdfFormula,int k){
 			this.profiles=profiles;
 			this.documentFrequencies=documentFrequencies;
@@ -87,25 +87,24 @@ public class KNearestClassifierFactory<T> extends StreamClassifierFactory<Classi
 			this.k=k;
 		}
 		@Override
-		public List<ClassificationResult> getCandidates(Stream<T> object,int max){
-			ImmutableFrequencies<T> unknown=new ImmutableFrequencies<>(object);
+		public List<ClassificationResult> getCandidates(Frequencies<T> unknown,int max){
 			LimitedSortedList<Pair<Category,Double>> cands=new LimitedSortedList<>(k,(p1,p2)->Double.compare(p1.getValue(),p2.getValue()));
 			profiles.entrySet().stream().forEach((e)->e.getValue().getDocumentVectors().forEach(
 					(sample)->cands.add(new Pair<>(e.getKey(),calculateDistance(sample,unknown)))));
 			Map<Category,Long> counts=cands.getElements().stream().collect(Collectors.groupingBy((e)->e.getKey(),Collectors.counting()));
 			return counts.entrySet().stream().map((e)->new ClassificationResult((e.getValue()+0.0)/k,e.getKey())).sorted().collect(Collectors.toList());
 		}
-		private double calculateDistance(ImmutableFrequencies<T> v1,ImmutableFrequencies<T> v2){
+		private double calculateDistance(Frequencies<T> v1,Frequencies<T> v2){
 			double dist=0;
-			for(Map.Entry<T,Long> e:v1.toMap().entrySet()){
+			for(Map.Entry<T,Counter> e:v1.toMap().entrySet()){
 				T token=e.getKey();
-				double diff=getTfIdf(token,e.getValue())-getTfIdf(token,v2.getFrequency(token));
+				double diff=getTfIdf(token,e.getValue().getCount())-getTfIdf(token,v2.getFrequency(token));
 				dist+=diff*diff;
 			}
-			for(Map.Entry<T,Long> e:v2.toMap().entrySet()){
+			for(Map.Entry<T,Counter> e:v2.toMap().entrySet()){
 				T token=e.getKey();
 				if(!v1.toMap().containsKey(token)){
-					double diff=getTfIdf(token,0)-getTfIdf(token,e.getValue());
+					double diff=getTfIdf(token,0)-getTfIdf(token,e.getValue().getCount());
 					dist+=diff*diff;
 				}
 			}

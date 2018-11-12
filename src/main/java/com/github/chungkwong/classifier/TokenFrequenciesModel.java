@@ -17,13 +17,12 @@
 package com.github.chungkwong.classifier;
 import com.github.chungkwong.classifier.util.*;
 import java.util.*;
-import java.util.stream.*;
 /**
  * The common interface for token frequencies based model
  * @author Chan Chung Kwong
  * @param <T> type of the object to be classified
  */
-public interface TokenFrequenciesModel<T> extends Trainable<Stream<T>>{
+public interface TokenFrequenciesModel<T> extends Trainable<Frequencies<T>>{
 	/**
 	 * @return the number of samples trained
 	 */
@@ -31,23 +30,23 @@ public interface TokenFrequenciesModel<T> extends Trainable<Stream<T>>{
 	/**
 	 * @return the frequencies table for each category
 	 */
-	Map<Category,ImmutableFrequencies<T>> getTokenFrequencies();
+	Map<Category,Frequencies<T>> getTokenFrequencies();
 	/**
 	 * @return the number of samples that contains each token 
 	 */
-	ImmutableFrequencies<T> getTotalDocumentFrequencies();
+	Frequencies<T> getTotalDocumentFrequencies();
 	/**
 	 * @return the frequency of each token in all samples 
 	 */
-	ImmutableFrequencies<T> getTotalTokenFrequencies();
+	Frequencies<T> getTotalTokenFrequencies();
 	/**
 	 * @return the number of samples in each category
 	 */
-	ImmutableFrequencies<Category> getSampleCounts();
+	Frequencies<Category> getSampleCounts();
 	/**
 	 * @return the number of unique tokens in each category
 	 */
-	ImmutableFrequencies<Category> getTokenCounts();
+	Frequencies<Category> getTokenCounts();
 	/**
 	 * Retain only the tokens that are contained in a given set
 	 * @param toKeep the tokens to be kept
@@ -56,9 +55,9 @@ public interface TokenFrequenciesModel<T> extends Trainable<Stream<T>>{
 	/**
 	 * @return the histogram of tokens
 	 */
-	default MutableFrequencies<Long> getTokenHistogram(){
-		MutableFrequencies<Long> histogram=new MutableFrequencies<>();
-		getTotalTokenFrequencies().toMap().forEach((k,v)->histogram.advanceFrequency(v));
+	default Frequencies<Long> getTokenHistogram(){
+		Frequencies<Long> histogram=new Frequencies<>();
+		getTotalTokenFrequencies().toMap().forEach((k,v)->histogram.advanceFrequency(v.getCount()));
 		return histogram;
 	}
 	/**
@@ -69,7 +68,7 @@ public interface TokenFrequenciesModel<T> extends Trainable<Stream<T>>{
 	default long[] getQuantile(double... q){
 		long[] acc=new long[q.length];
 		long[] quantile=new long[q.length];
-		MutableFrequencies<Long> histogram=getTokenHistogram();
+		Frequencies<Long> histogram=getTokenHistogram();
 		long total=histogram.toMap().values().stream().mapToLong((c)->c.getCount()).sum();
 		histogram.toMap().forEach((k,v)->{
 			for(int i=0;i<q.length;i++){

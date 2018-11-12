@@ -40,16 +40,14 @@ public class LimitedSortedList<T>{
 	 * @param e the element
 	 */
 	public void add(T e){
-		for(int i=0;i<base.size();i++){
-			if(comparator.compare(e,base.get(i))<0){
-				if(base.size()>=k)
-					base.remove(base.size()-1);
-				base.add(i,e);
-				return;
-			}
+		int index=Collections.binarySearch(base,e,comparator);
+		if(index<0)
+			index=-(index+1);
+		if(index<k){
+			if(base.size()>=k)
+				base.remove(base.size()-1);
+			base.add(index,e);
 		}
-		if(base.size()<k)
-			base.add(e);
 	}
 	/**
 	 * @return the elements of the list

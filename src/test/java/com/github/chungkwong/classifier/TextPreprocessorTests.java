@@ -32,6 +32,7 @@ public class TextPreprocessorTests{
 	public void testTokenizer(){
 		assertTokenizeTo("I am a  bad girl.",new String[]{"I"," ","am"," ","a","  ","bad"," ","girl","."},TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.ENGLISH)));
 		assertTokenizeTo("我是一个大苹果",new String[]{"我是一个大苹果"},TextPreprocessors.getJavaTokenizer(BreakIterator.getWordInstance(Locale.CHINESE)));
+		assertTokenizeTo("我是一个大苹果",new String[]{"我是","一个","大","苹果"},TextPreprocessors.getIcuTokenizer(com.ibm.icu.text.BreakIterator.getWordInstance(Locale.CHINESE)));
 		assertTokenizeTo("我是一个大苹果",new String[]{"我","是","一","个","大","苹","果"},TextPreprocessors.getJavaTokenizer(BreakIterator.getCharacterInstance(Locale.CHINESE)));
 		Function<String,Stream<String>> separatorTokenizer1=TextPreprocessors.getSeparatorTokenizer(Pattern.compile("\\s+"),false);
 		Function<String,Stream<String>> separatorTokenizer2=TextPreprocessors.getSeparatorTokenizer(Pattern.compile("\\s+"),true);

@@ -40,10 +40,10 @@ public class FrequencyFeatureSelector<M extends TokenFrequenciesModel<T>,T> impl
 		this.document=document;
 	}
 	@Override
-	public Set<T> select(M model,Function<M,? extends Classifier<Stream<T>>> classifierSupplier){
-		ImmutableFrequencies<T> frequencies=document?model.getTotalDocumentFrequencies():model.getTotalTokenFrequencies();
+	public Set<T> select(M model,Function<M,? extends Classifier<Frequencies<T>>> classifierSupplier){
+		Frequencies<T> frequencies=document?model.getTotalDocumentFrequencies():model.getTotalTokenFrequencies();
 		return frequencies.toMap().entrySet().stream().
-				filter((e)->e.getValue()>=start&&e.getValue()<end).
+				filter((e)->e.getValue().getCount()>=start&&e.getValue().getCount()<end).
 				map((e)->e.getKey()).collect(Collectors.toSet());
 	}
 	@Override

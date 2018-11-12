@@ -15,7 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
-import java.util.stream.*;
+import com.github.chungkwong.classifier.util.*;
+import java.util.*;
 /**
  * Classifier factory for stream
  * @author Chan Chung Kwong
@@ -23,7 +24,7 @@ import java.util.stream.*;
  * @param <M> the type of model
  * @param <T> the type of underlying data to be classified
  */
-public abstract class StreamClassifierFactory<C extends Classifier<Stream<T>>,M extends TokenFrequenciesModel<T>,T> implements ClassifierFactory<C,M,Stream<T>>{
+public abstract class BagClassifierFactory<C extends Classifier<Frequencies<T>>,M extends TokenFrequenciesModel<T>,T> implements ClassifierFactory<C,M,Frequencies<T>>{
 	private FeatureSelector<M,T> featureSelector;
 	/**
 	 * @return the feature selector
@@ -36,14 +37,17 @@ public abstract class StreamClassifierFactory<C extends Classifier<Stream<T>>,M 
 	 * @param featureSelector to be set
 	 * @return this
 	 */
-	public StreamClassifierFactory<C,M,T> setFeatureSelector(FeatureSelector<M,T> featureSelector){
+	public BagClassifierFactory<C,M,T> setFeatureSelector(FeatureSelector<M,T> featureSelector){
 		this.featureSelector=featureSelector;
 		return this;
 	}
 	@Override
 	public C getClassifier(M model){
-		if(featureSelector!=null)
-			model.retainAll(featureSelector.select(model,this::createClassifier));
+		if(featureSelector!=null){
+			Set<T> selected=featureSelector.select(model,this::createClassifier);
+			model.retainAll(selected);
+			System.out.println(toString()+selected);
+		}
 		return createClassifier(model);
 	}
 	/**
@@ -63,5 +67,4 @@ public abstract class StreamClassifierFactory<C extends Classifier<Stream<T>>,M 
 		else
 			return getName();
 	}
-	
 }
