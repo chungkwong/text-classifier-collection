@@ -5,7 +5,7 @@ __A full fledged text classification toolkit for Java__
 ## Features
 
 - Full fledged
-    - Bulit-in support for common text preprocessors found in information retrieval system 
+    - Bulit-in support for common text preprocessors found in information retrieval system
     - Bulit-in SVM, C4.5, kNN, and naive Bayesian classifiers
     - Bulit-in support for CVS format
 - Highly customizable
@@ -27,11 +27,11 @@ and consider the frequency of each token.
 ### Tokenizer
 
 Text need to be tokenizied before being used to train or classify. The toolkit includes:
-- Java class `java.text.BreakIterator` based locale awared method, recommanded if 
+- Java class `java.text.BreakIterator` based locale awared method, recommanded if
   the locale of the text is supported by Java.
-- Split using a regular expression that matches separator, the other parts can be kept or not 
+- Split using a regular expression that matches separator, the other parts can be kept or not
   according to your opinion.
-- Split using a regular expression that matches token, the other parts can be kept or not 
+- Split using a regular expression that matches token, the other parts can be kept or not
   according to your opinion.
 
 Surely, you can pass your own tokenizers into the toolkit.
@@ -44,17 +44,17 @@ Filters transform a token stream into another. The toolkit includes:
     - Apply transformations provided by icu4j
     - Upcase
     - Downcase
-    - Fold case. Since there are no one to one corresponding between lower case letters 
+    - Fold case. Since there are no one to one corresponding between lower case letters
       and upper case letters in many languages, case folding should be used to ignore case.
     - Stemming，i.e. convert words into their root from. Stemming algorithm from Snowball
-      are included:  Arabic,  Danish,  Dutch,  English,  Finnish,  French,  German, 
-      Hungarian,  Indonesian,  Irish,  Italian,  Nepali,  Norwegian,  Portuguese,  
+      are included:  Arabic,  Danish,  Dutch,  English,  Finnish,  French,  German,
+      Hungarian,  Indonesian,  Irish,  Italian,  Nepali,  Norwegian,  Portuguese,
       Romanian,  Spanish,  Russian,  Swedish,  Tamil,  Turkish
     - Text replacement based on regular expression(Backward reference is allowed)
     - User-defined mapping
 - Those who remove some tokens from the stream, e.g.
     - Remove token that are whitespace
-    - Remove stop words 
+    - Remove stop words
     - Keep only protected words
     - Remove tokens that match a regular expression
     - Remove tokens that do not match a regular expression
@@ -66,9 +66,9 @@ Filters transform a token stream into another. The toolkit includes:
 Surely, you can pass your own filters into the toolkit.
 
 As a rule of thumb：
-- The larger the training set is, the less aggressive filters can be applied in 
+- The larger the training set is, the less aggressive filters can be applied in
   order to improve accuracy by using more details.
-- The smaller the training set is, the more aggressive filters should be applied 
+- The smaller the training set is, the more aggressive filters should be applied
   in order to prevent over-fitting.
 
 ### Classifier
@@ -80,9 +80,9 @@ Classifiers are used to assign class labels to token streams. The toolkit includ
   samples is needed, it may be very slow for large datasets.
 - Naive Bayesian classifier. Such classifier estimate the probability that the stream
   belong to a class, assuming the appearance of tokens is independent.
-- TF-IDF classifier. Such classifier calculate the angle between the token TF-IDF 
+- TF-IDF classifier. Such classifier calculate the angle between the token TF-IDF
   vector of the stream and the token TF-IDF vector of the class.
-- SVM classifier. Such classifier use support vector machine which solve a kind 
+- SVM classifier. Such classifier use support vector machine which solve a kind
   of conditional optimization problem.
 - C4.5 classifier. Such classifier use decision trees to classify objects.
 
@@ -136,7 +136,7 @@ public class GetStarted{
 }
 ```
 
-### Customize 
+### Customize
 
 ```java
 package com.github.chungkwong.classifier.example;
@@ -151,7 +151,7 @@ public class Demo{
 	private static final String DATA_FILE="data/foobar.csv";
 	public static void main(String[] args){
 		//Create a naive Bayesian ClassifierFactory. For other classifier, use
-        //new SvmClassifierFactory(),new KNearestClassifierFactory().setK(k) 
+        //new SvmClassifierFactory(),new KNearestClassifierFactory().setK(k)
         //new C45ClassifierFactory() or new TfIdfClassifierFactory()
 		BayesianClassifierFactory<String> baseClassifierFactory=new BayesianClassifierFactory<>();
 		//Select at most 500 features using Tf-Idf
@@ -163,9 +163,9 @@ public class Demo{
 		//Create token stream filter, the following one remove white space and then generate 2-gram
 		Function<Stream<String>,Stream<String>> postTokenize=TextPreprocessors.getWhitespaceFilter().andThen(TextPreprocessors.getNgramGenerator(2));
 		//Create a text ClassifierFactory with given preprocessors applied
-		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Frequencies<String>> classifierFactory=new PreprocessClassifierFactory<>(
 				TextPreprocessors.of(preTokenize,tokenizer,postTokenize),baseClassifierFactory);
-		PreprocessModel<FrequenciesModel<String>,String,Stream<String>> model=classifierFactory.createModel();
+		PreprocessModel<FrequenciesModel<String>,String,Frequencies<String>> model=classifierFactory.createModel();
 		model.train(TextDatasetHelper.csvRecords(new File(DATA_FILE).toPath(),1,0));
 		Classifier<String> classifier=classifierFactory.getClassifier(model);
 		//Output the candidates and their scores
@@ -174,7 +174,7 @@ public class Demo{
 }
 ```
 
-### Calculate confusion matrix and accuracy 
+### Calculate confusion matrix and accuracy
 
 ```java
 package com.github.chungkwong.classifier.example;
@@ -361,9 +361,9 @@ public class Demo{
 		//创建单词流过滤器，这里是去除空白单词和转换为2-gram
 		Function<Stream<String>,Stream<String>> postTokenize=TextPreprocessors.getWhitespaceFilter().andThen(TextPreprocessors.getNgramGenerator(2));
 		//创建与预处理器相结合的文本分类器
-		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Frequencies<String>> classifierFactory=new PreprocessClassifierFactory<>(
 				TextPreprocessors.of(preTokenize,tokenizer,postTokenize),baseClassifierFactory);
-		PreprocessModel<FrequenciesModel<String>,String,Stream<String>> model=classifierFactory.createModel();
+		PreprocessModel<FrequenciesModel<String>,String,Frequencies<String>> model=classifierFactory.createModel();
 		model.train(TextDatasetHelper.csvRecords(new File(DATA_FILE).toPath(),1,0));
 		Classifier<String> classifier=classifierFactory.getClassifier(model);
 		//输出类别候选及其得分

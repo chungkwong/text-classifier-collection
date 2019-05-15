@@ -16,6 +16,7 @@
  */
 package com.github.chungkwong.classifier.example;
 import com.github.chungkwong.classifier.*;
+import com.github.chungkwong.classifier.util.*;
 import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
 import java.text.*;
@@ -24,10 +25,11 @@ import java.util.function.*;
 import java.util.stream.*;
 /**
  * Show how to use the toolkit
+ *
  * @author Chan Chung Kwong
  */
 public class Demo{
-	private static final String DATA_FILE="data/foobar.csv";
+	private static final String DATA_FILE="/home/kwong/projects/text-classifier-demo/data/foobar.csv";
 	public static void main(String[] args){
 		//创建朴素贝叶斯单词流分类器，对于其它分类器改为new SvmClassifierFactory()、
 		//new KNearestClassifierFactory().setK(k)或new TfIdfClassifierFactory()
@@ -41,9 +43,9 @@ public class Demo{
 		//创建单词流过滤器，这里是去除空白单词和转换为2-gram
 		Function<Stream<String>,Stream<String>> postTokenize=TextPreprocessors.getWhitespaceFilter().andThen(TextPreprocessors.getNgramGenerator(2));
 		//创建与预处理器相结合的文本分类器
-		PreprocessClassifierFactory<FrequenciesModel<String>,String,Stream<String>> classifierFactory=new PreprocessClassifierFactory<>(
+		PreprocessClassifierFactory<FrequenciesModel<String>,String,Frequencies<String>> classifierFactory=new PreprocessClassifierFactory<>(
 				TextPreprocessors.of(preTokenize,tokenizer,postTokenize),baseClassifierFactory);
-		PreprocessModel<FrequenciesModel<String>,String,Stream<String>> model=classifierFactory.createModel();
+		PreprocessModel<FrequenciesModel<String>,String,Frequencies<String>> model=classifierFactory.createModel();
 		model.train(TextDatasetHelper.csvRecords(new File(DATA_FILE).toPath(),1,0));
 		Classifier<String> classifier=classifierFactory.getClassifier(model);
 		//输出类别候选及其得分
