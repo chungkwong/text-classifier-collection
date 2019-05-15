@@ -141,6 +141,7 @@ public class GetStarted{
 ```java
 package com.github.chungkwong.classifier.example;
 import com.github.chungkwong.classifier.*;
+import com.github.chungkwong.classifier.util.*;
 import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
 import java.text.*;
@@ -339,6 +340,7 @@ public class GetStarted{
 ```java
 package com.github.chungkwong.classifier.example;
 import com.github.chungkwong.classifier.*;
+import com.github.chungkwong.classifier.util.*;
 import com.github.chungkwong.classifier.validator.*;
 import java.io.*;
 import java.text.*;
