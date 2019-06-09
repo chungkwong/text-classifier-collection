@@ -19,7 +19,9 @@ import com.github.chungkwong.classifier.util.*;
 import java.util.*;
 import java.util.stream.*;
 /**
- * Trainable model being used to classify streams based on frequencies of token in the stream
+ * Trainable model being used to classify streams based on frequencies of token
+ * in the stream
+ *
  * @author Chan Chung Kwong
  * @param <T> the type of tokens in the streams
  */
@@ -67,17 +69,18 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Frequencies<T>
 				(e)->new Counter(e.getValue().getDocumentVectors().stream().flatMap((v)->v.toMap().keySet().stream()).distinct().count()))));
 	}
 	public Map<Category,Frequencies<T>> getDocumentFrequencies(){
-		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)->
-				e.getValue().getDocumentVectors().stream().collect(()->new Frequencies<>(true),(f,v)->f.merge(v),(f1,f2)->f1.merge(f2))));
+		return getProfiles().entrySet().stream().collect(Collectors.toMap((e)->e.getKey(),(e)
+				->e.getValue().getDocumentVectors().stream().collect(()->new Frequencies<>(true),(f,v)->f.merge(v),(f1,f2)->f1.merge(f2))));
 	}
 	@Override
 	public void retainAll(Set<T> toKeep){
 		getProfiles().forEach((k,v)->{
 			v.getDocumentVectors().forEach((vector)->vector.toMap().keySet().retainAll(toKeep));
 		});
-	}	
+	}
 	/**
 	 * Profile that records document vector
+	 *
 	 * @param <T> the type of tokens
 	 */
 	public static class VectorsProfile<T>{
@@ -90,6 +93,7 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Frequencies<T>
 		}
 		/**
 		 * Create a profile
+		 *
 		 * @param vectors initial vector
 		 */
 		public VectorsProfile(List<Frequencies<T>> vectors){
@@ -97,6 +101,7 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Frequencies<T>
 		}
 		/**
 		 * Update the profile based on sample data
+		 *
 		 * @param object sample data
 		 */
 		public void update(Frequencies<T> object){

@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.stream.*;
 /**
  * A parser of CSV format file
+ *
  * @author Chan Chung Kwong
  */
 public class CsvParser implements Iterator<List<String>>{
@@ -27,15 +28,16 @@ public class CsvParser implements Iterator<List<String>>{
 	private final char quotationMark;
 	/**
 	 * Create a parser, the first line is skiped
+	 *
 	 * @param lines the input lines
 	 */
 	public CsvParser(Stream<String> lines){
 		this(lines,true);
 	}
 	/**
-	 * Create a parser, `,` will be the separator
-	 * `"` will be the quotation mark
-	 * @param lines  the input lines 
+	 * Create a parser, `,` will be the separator `"` will be the quotation mark
+	 *
+	 * @param lines the input lines
 	 * @param skipHeader if the first line should be skiped
 	 */
 	public CsvParser(Stream<String> lines,boolean skipHeader){
@@ -43,7 +45,8 @@ public class CsvParser implements Iterator<List<String>>{
 	}
 	/**
 	 * Create a parser
-	 * @param lines  the input lines 
+	 *
+	 * @param lines the input lines
 	 * @param skipHeader if the first line should be skiped
 	 * @param separator the separator between fields
 	 * @param quotationMark the quotationMark
@@ -101,23 +104,26 @@ public class CsvParser implements Iterator<List<String>>{
 	}
 	/**
 	 * Parse a CSV file
+	 *
 	 * @param lines the input lines
 	 * @return the records
 	 */
 	public static Stream<List<String>> parse(Stream<String> lines){
-		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CsvParser(lines),0),true);
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CsvParser(lines),0),false);
 	}
 	/**
 	 * Parse a CSV file
+	 *
 	 * @param lines the input lines
 	 * @param skipHeader if the first line should be skiped
 	 * @return the records
 	 */
 	public static Stream<List<String>> parse(Stream<String> lines,boolean skipHeader){
-		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CsvParser(lines,skipHeader),0),true);
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CsvParser(lines,skipHeader),0),false);
 	}
 	/**
 	 * Parse a CSV file
+	 *
 	 * @param lines the input lines
 	 * @param skipHeader if the first line should be skiped
 	 * @param separator the separator between fields
@@ -125,6 +131,6 @@ public class CsvParser implements Iterator<List<String>>{
 	 * @return the records
 	 */
 	public static Stream<List<String>> parse(Stream<String> lines,boolean skipHeader,char separator,char quotationMark){
-		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CsvParser(lines,skipHeader,separator,quotationMark),0),true);
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new CsvParser(lines,skipHeader,separator,quotationMark),0),false);
 	}
 }
