@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.function.*;
 /**
  * Trainable model that only rely on profile about each category
+ *
  * @author Chan Chung Kwong
  * @param <T> the type of the object that the model will be used to classify
  * @param <P> the type of the profile about each category
@@ -29,8 +30,10 @@ public class SimpleTrainableModel<T,P> implements Trainable<T>{
 	private final BiConsumer<T,P> profileUpdater;
 	/**
 	 * Create a simple trainable model
+	 *
 	 * @param profileBuilder being used to create a profile for a category
-	 * @param profileUpdater being called to update profile according to training data
+	 * @param profileUpdater being called to update profile according to
+	 * training data
 	 */
 	public SimpleTrainableModel(Supplier<P> profileBuilder,BiConsumer<T,P> profileUpdater){
 		this.profileBuilder=profileBuilder;

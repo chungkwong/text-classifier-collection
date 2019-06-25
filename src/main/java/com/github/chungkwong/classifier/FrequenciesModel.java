@@ -24,11 +24,13 @@ import java.util.function.*;
 import java.util.logging.*;
 import java.util.stream.*;
 /**
- * Trainable model being used to classify streams based on frequencies of token in the stream
+ * Trainable model being used to classify streams based on frequencies of token
+ * in the stream
+ *
  * @author Chan Chung Kwong
  * @param <T> the type of tokens in the streams
  */
-public class FrequenciesModel<T> extends SimpleTrainableModel<Frequencies<T>,FrequenciesModel.FrequencyProfile<T>> 
+public class FrequenciesModel<T> extends SimpleTrainableModel<Frequencies<T>,FrequenciesModel.FrequencyProfile<T>>
 		implements TokenFrequenciesModel<T>,Persistable<T>{
 	/**
 	 * Create a model
@@ -124,6 +126,7 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Frequencies<T>,Fre
 	private static final String DOC_COUNT="_docCount";
 	/**
 	 * Profile that records frequencies of each token
+	 *
 	 * @param <T> the type of tokens
 	 */
 	public static class FrequencyProfile<T>{
@@ -137,6 +140,7 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Frequencies<T>,Fre
 		}
 		/**
 		 * Update the profile based on sample data
+		 *
 		 * @param object sample data
 		 */
 		public void update(Frequencies<T> object){
@@ -145,7 +149,8 @@ public class FrequenciesModel<T> extends SimpleTrainableModel<Frequencies<T>,Fre
 			++documentCount;
 		}
 		/**
-		 * @return the number of samples that contains each token in the category
+		 * @return the number of samples that contains each token in the
+		 * category
 		 */
 		public Frequencies<T> getDocumentFrequencies(){
 			return documentFrequencies;

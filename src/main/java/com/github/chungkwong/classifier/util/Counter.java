@@ -15,11 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier.util;
+import java.io.*;
 /**
  * Counter, i.e. mutable long integer
+ *
  * @author Chan Chung Kwong
  */
-public class Counter{
+public class Counter implements Serializable{
 	private long count;
 	/**
 	 * Create a counter with initial value 0
@@ -28,6 +30,7 @@ public class Counter{
 	}
 	/**
 	 * Create a counter
+	 *
 	 * @param count initial value
 	 */
 	public Counter(long count){
@@ -47,6 +50,7 @@ public class Counter{
 	}
 	/**
 	 * Add given value to the current value of the counter
+	 *
 	 * @param times to be added
 	 */
 	public void advance(long times){

@@ -15,14 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier.util;
+import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 /**
  * Records of frequency of different objects
+ *
  * @author Chan Chung Kwong
  * @param <T> the type of the objects to be recorded
  */
-public class Frequencies<T>{
+public class Frequencies<T> implements Serializable{
 	private final Map<T,Counter> frequency;
 	/**
 	 * Create a frequencies table backed by TreeMap
@@ -32,12 +34,15 @@ public class Frequencies<T>{
 	}
 	/**
 	 * Create a frequencies table
+	 *
 	 * @param useHashMap if true, the table is backed by HashMap
 	 */
 	public Frequencies(boolean useHashMap){
 		frequency=useHashMap?new HashMap<>():new TreeMap<>();
-	}/**
+	}
+	/**
 	 * Create a frequencies table
+	 *
 	 * @param frequency the source
 	 */
 	public Frequencies(Map<T,Counter> frequency){
@@ -45,6 +50,7 @@ public class Frequencies<T>{
 	}
 	/**
 	 * Create a frequencies table
+	 *
 	 * @param tokens the objects to be recorded
 	 */
 	public Frequencies(Stream<T> tokens){
@@ -53,6 +59,7 @@ public class Frequencies<T>{
 	}
 	/**
 	 * Increase the frequency of a given object by one
+	 *
 	 * @param token the given object
 	 */
 	public void advanceFrequency(T token){
@@ -66,6 +73,7 @@ public class Frequencies<T>{
 	}
 	/**
 	 * Increase the frequency of a given object by a given value
+	 *
 	 * @param token the given object
 	 * @param times the given value
 	 */
@@ -80,6 +88,7 @@ public class Frequencies<T>{
 	}
 	/**
 	 * Merge frequencies into this table
+	 *
 	 * @param toMerge the source
 	 */
 	public void merge(Frequencies<T> toMerge){
@@ -87,6 +96,7 @@ public class Frequencies<T>{
 	}
 	/**
 	 * Set the frequency of a object to zero
+	 *
 	 * @param token the object
 	 */
 	public void reset(T token){
@@ -94,6 +104,7 @@ public class Frequencies<T>{
 	}
 	/**
 	 * Get the frequency of a object
+	 *
 	 * @param token the object
 	 * @return the frequency
 	 */
@@ -109,6 +120,7 @@ public class Frequencies<T>{
 	}
 	/**
 	 * Map representation of the table
+	 *
 	 * @return the map
 	 */
 	public Map<T,Counter> toMap(){

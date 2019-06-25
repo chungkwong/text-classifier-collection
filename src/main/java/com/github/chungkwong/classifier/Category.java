@@ -15,15 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.github.chungkwong.classifier;
+import java.io.*;
 import java.util.*;
 /**
  * Category, i.e. class label in classification
+ *
  * @author Chan Chung Kwong
  */
-public class Category{
+public class Category implements Serializable{
 	private final String name;
 	/**
 	 * Create a category
+	 *
 	 * @param name the label of the category
 	 */
 	public Category(String name){
@@ -31,6 +34,7 @@ public class Category{
 	}
 	/**
 	 * Get the label of the category
+	 *
 	 * @return the label of the category
 	 */
 	public String getName(){

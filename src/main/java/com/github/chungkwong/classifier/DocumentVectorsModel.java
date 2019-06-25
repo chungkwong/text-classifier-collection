@@ -16,7 +16,10 @@
  */
 package com.github.chungkwong.classifier;
 import com.github.chungkwong.classifier.util.*;
+import java.io.*;
 import java.util.*;
+import java.util.function.*;
+import java.util.logging.*;
 import java.util.stream.*;
 /**
  * Trainable model being used to classify streams based on frequencies of token
@@ -25,7 +28,7 @@ import java.util.stream.*;
  * @author Chan Chung Kwong
  * @param <T> the type of tokens in the streams
  */
-public class DocumentVectorsModel<T> extends SimpleTrainableModel<Frequencies<T>,DocumentVectorsModel.VectorsProfile<T>> implements TokenFrequenciesModel<T>{
+public class DocumentVectorsModel<T> extends SimpleTrainableModel<Frequencies<T>,DocumentVectorsModel.VectorsProfile<T>> implements TokenFrequenciesModel<T>,Persistable<T>{
 	/**
 	 * Create a model
 	 */
@@ -78,12 +81,28 @@ public class DocumentVectorsModel<T> extends SimpleTrainableModel<Frequencies<T>
 			v.getDocumentVectors().forEach((vector)->vector.toMap().keySet().retainAll(toKeep));
 		});
 	}
+	@Override
+	public void save(File directory,Function<T,String> encoder){
+		try(ObjectOutputStream out=new ObjectOutputStream(new FileOutputStream(new File(directory,"MODEL")))){
+			out.writeObject(getProfiles());
+		}catch(IOException ex){
+			Logger.getLogger(SimpleTrainableModel.class.getName()).log(Level.SEVERE,null,ex);
+		}
+	}
+	@Override
+	public void load(File directory,Function<String,T> decoder){
+		try(ObjectInputStream out=new ObjectInputStream(new FileInputStream(new File(directory,"MODEL")))){
+			getProfiles().putAll((Map<? extends Category,? extends VectorsProfile<T>>)out.readObject());
+		}catch(IOException|ClassCastException|ClassNotFoundException ex){
+			Logger.getLogger(DocumentVectorsModel.class.getName()).log(Level.SEVERE,null,ex);
+		}
+	}
 	/**
 	 * Profile that records document vector
 	 *
 	 * @param <T> the type of tokens
 	 */
-	public static class VectorsProfile<T>{
+	public static class VectorsProfile<T> implements Serializable{
 		private final List<Frequencies<T>> vectors;
 		/**
 		 * Create a empty profile
